@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: 246 245 241;
+  --paper-raised: 251 250 247;
+  --ink: 25 29 26;
+  --ink-soft: 91 102 96;
+  --ink-faint: 154 163 157;
+  --hairline: 25 29 26;
+  --brand: 47 93 80;
+  --brand-soft: 47 93 80;
+  --gold: 176 138 66;
+  --gold-soft: 176 138 66;
+  --wine: 139 58 72;
+  --wine-soft: 139 58 72;
+  --forecast-bg: 23 27 24;
+}
+
+.dark {
+  --paper: 20 24 26;
+  --paper-raised: 27 33 31;
+  --ink: 237 238 233;
+  --ink-soft: 167 176 170;
+  --ink-faint: 107 116 110;
+  --hairline: 237 238 233;
+  --brand: 111 174 153;
+  --brand-soft: 111 174 153;
+  --gold: 211 174 110;
+  --gold-soft: 211 174 110;
+  --wine: 208 135 145;
+  --wine-soft: 208 135 145;
+  --forecast-bg: 14 18 16;
+}
+
+* {
+  border-color: rgb(var(--hairline) / 0.12);
+}
+
+body {
+  background-color: rgb(var(--paper));
+  color: rgb(var(--ink));
+  font-family: var(--font-manrope), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-fraunces), serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Foco visível para acessibilidade de teclado */
+:focus-visible {
+  outline: 2px solid rgb(var(--brand));
+  outline-offset: 2px;
+}
