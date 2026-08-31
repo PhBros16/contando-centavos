@@ -15,7 +15,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Rumo — Acompanhamento financeiro familiar",
+  title: "Contando Centavos — Acompanhamento financeiro familiar",
   description: "Contas, orçamento, metas e previsões da sua família em um só lugar.",
 };
 

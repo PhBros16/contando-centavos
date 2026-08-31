@@ -79,7 +79,7 @@ function Brand() {
           <path d="M4 18 L10 10 L14 14 L20 5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
-      <span className="font-display text-[19px]">Rumo</span>
+      <span className="font-display text-[16px] leading-[1.15]">Contando Centavos</span>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-# Rumo — Acompanhamento financeiro familiar
+# Contando Centavos — Acompanhamento financeiro familiar
 
 Sistema privado de acompanhamento financeiro com contas, transações, orçamento,
 metas e previsões de saldo. Next.js + Supabase + Vercel.
@@ -46,14 +46,17 @@ outra família.
 ```bash
 git init
 git add .
-git commit -m "Setup inicial do Rumo"
+git commit -m "Setup inicial do Contando Centavos"
 git branch -M main
-git remote add origin https://github.com/SEU-USUARIO/rumo-app.git
+git remote add origin https://github.com/SEU-USUARIO/contando-centavos.git
 git push -u origin main
 ```
 
-> Recomendação: deixe o repositório **privado**, já que ele vai guardar a
-> estrutura de dados financeiros da família (mesmo sem dados reais no código).
+> Como este é um projeto de portfólio, o repositório pode ficar **público**
+> sem risco: nenhum dado real ou segredo fica no código. A `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+> é feita para ser pública — a segurança de verdade está no Row Level Security
+> do banco (ver `supabase/schema.sql`), não em esconder essa chave. Nunca
+> coloque a `service_role key` do Supabase em nenhum arquivo do repositório.
 
 ## 4. Deploy na Vercel
 

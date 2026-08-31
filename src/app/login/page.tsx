@@ -49,7 +49,7 @@ export default function LoginPage() {
               <path d="M4 18 L10 10 L14 14 L20 5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span className="font-display text-xl">Rumo</span>
+          <span className="font-display text-xl">Contando Centavos</span>
         </div>
 
         <h1 className="font-display text-2xl mb-1">
@@ -58,7 +58,7 @@ export default function LoginPage() {
         <p className="text-sm text-ink-soft mb-8">
           {mode === "entrar"
             ? "Entre para ver as finanças da família."
-            : "Crie a conta principal da sua família no Rumo."}
+            : "Crie a conta principal da sua família no Contando Centavos."}
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
