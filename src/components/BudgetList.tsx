@@ -1,12 +1,26 @@
+import Link from "next/link";
 import type { Budget } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
 
 export function BudgetList({ budgets }: { budgets: Budget[] }) {
   return (
     <div>
-      <div className="mb-4">
+      <div className="flex justify-between items-baseline mb-4">
         <h3 className="text-[15.5px] font-bold">Orçamento do mês</h3>
+        <Link href="/dashboard/budgets/new" className="text-xs font-semibold text-brand hover:underline">
+          {budgets.length > 0 ? "Editar" : "Definir"}
+        </Link>
       </div>
+
+      {budgets.length === 0 && (
+        <Link
+          href="/dashboard/budgets/new"
+          className="flex items-center justify-between gap-3 rounded-card border border-dashed border-hairline px-4 py-3.5 text-sm text-ink-soft hover:text-ink transition-colors"
+        >
+          Nenhum limite definido este mês ainda.
+        </Link>
+      )}
+
       <div>
         {budgets.map((b) => {
           const used = b.used ?? 0;
