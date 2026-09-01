@@ -7,10 +7,10 @@ const NAV_ITEMS = [
   { label: "Visão geral", icon: "home", href: "/dashboard", real: true },
   { label: "Contas", icon: "wallet", href: "/dashboard/accounts/new", real: true },
   { label: "Categorias", icon: "tag", href: "/dashboard/categories", real: true },
-  { label: "Despesas", icon: "bill", href: "/dashboard", real: false },
+  { label: "Despesas", icon: "bill", href: "/dashboard/bills/new", real: true },
   { label: "Orçamento", icon: "budget", href: "/dashboard/budgets/new", real: true },
   { label: "Metas", icon: "goal", href: "/dashboard/goals/new", real: true },
-  { label: "Previsões", icon: "forecast", href: "/dashboard", real: false },
+  { label: "Recorrências", icon: "repeat", href: "/dashboard/recurring/new", real: true },
 ];
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -55,6 +55,14 @@ const ICONS: Record<string, React.ReactNode> = {
     <>
       <path d="M12 3v4M12 17v4M3 12h4M17 12h4" strokeLinecap="round" />
       <circle cx="12" cy="12" r="4.5" />
+    </>
+  ),
+  repeat: (
+    <>
+      <path d="M17 2 21 6l-4 4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 11V9a4 4 0 0 1 4-4h14" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7 22 3 18l4-4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M21 13v2a4 4 0 0 1-4 4H3" strokeLinecap="round" strokeLinejoin="round" />
     </>
   ),
 };
