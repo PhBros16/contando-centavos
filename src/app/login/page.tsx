@@ -44,17 +44,6 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center px-6 bg-paper relative">
-      {mode === "criar" && (
-        <button
-          onClick={() => setMode("entrar")}
-          aria-label="Voltar"
-          className="absolute top-6 left-6 w-9 h-9 rounded-full border border-hairline bg-paper-raised flex items-center justify-center hover:bg-hairline/10 transition-colors"
-        >
-          <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-ink-soft" fill="none" strokeWidth="1.8">
-            <path d="M15 5 8 12l7 7" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-      )}
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-2.5 mb-10">
           <div className="w-8 h-8 rounded-[9px] bg-brand flex items-center justify-center">
@@ -68,11 +57,32 @@ export default function LoginPage() {
         <h1 className="font-display text-2xl mb-1">
           {mode === "entrar" ? "Bem-vindo de volta" : "Comece sua jornada"}
         </h1>
-        <p className="text-sm text-ink-soft mb-8">
+        <p className="text-sm text-ink-soft mb-6">
           {mode === "entrar"
-            ? "Entre para ver as finanças da família."
-            : "Crie a conta principal da sua família no Contando Centavos."}
+            ? "Entre para ver suas finanças."
+            : "Crie sua conta no Contando Centavos."}
         </p>
+
+        <div className="flex rounded-lg border border-hairline overflow-hidden mb-6">
+          <button
+            type="button"
+            onClick={() => setMode("entrar")}
+            className={`flex-1 py-2 text-sm font-semibold transition-colors ${
+              mode === "entrar" ? "bg-brand text-paper-raised" : "text-ink-soft hover:text-ink"
+            }`}
+          >
+            Entrar
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("criar")}
+            className={`flex-1 py-2 text-sm font-semibold transition-colors ${
+              mode === "criar" ? "bg-brand text-paper-raised" : "text-ink-soft hover:text-ink"
+            }`}
+          >
+            Criar conta
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {mode === "criar" && <Field label="Seu nome" value={fullName} onChange={setFullName} required />}
@@ -89,13 +99,6 @@ export default function LoginPage() {
             {loading ? "Aguarde…" : mode === "entrar" ? "Entrar" : "Criar conta"}
           </button>
         </form>
-
-        <button
-          onClick={() => setMode(mode === "entrar" ? "criar" : "entrar")}
-          className="mt-6 text-sm text-ink-soft hover:text-ink transition-colors"
-        >
-          {mode === "entrar" ? "Ainda não tem conta? Criar agora" : "Já tem conta? Entrar"}
-        </button>
       </div>
     </main>
   );
