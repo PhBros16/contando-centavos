@@ -63,6 +63,26 @@ export type RecurringRule = {
   active: boolean;
 };
 
+export type Profile = {
+  id: string;
+  household_id: string;
+  full_name: string;
+  avatar_url: string | null;
+  avatar_color: string;
+};
+
+export type Bill = {
+  id: string;
+  household_id: string;
+  category_id: string | null;
+  description: string;
+  amount: number;
+  due_date: string;
+  status: "pendente" | "pago" | "atrasado";
+  recurring: boolean;
+  category?: Pick<Category, "name">;
+};
+
 export type MonthlyFlowPoint = {
   month: string;
   net: number;

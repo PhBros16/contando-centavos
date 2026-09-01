@@ -23,6 +23,7 @@ create table profiles (
   household_id uuid not null references households(id) on delete cascade,
   full_name text not null,
   avatar_color text default '#2F5D50',
+  avatar_url text,
   created_at timestamptz not null default now()
 );
 
@@ -140,6 +141,23 @@ create table investments (
   created_at timestamptz not null default now()
 );
 
+-- ----------------------------------------------------------------------------
+-- 9b. BILLS (despesas e compromissos com vencimento — diferente de transaction solta)
+-- ----------------------------------------------------------------------------
+create table bills (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references households(id) on delete cascade,
+  category_id uuid references categories(id) on delete set null,
+  description text not null,
+  amount numeric(14,2) not null,
+  due_date date not null,
+  status text not null default 'pendente' check (status in ('pendente', 'pago', 'atrasado')),
+  recurring boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index bills_household_idx on bills(household_id, due_date);
+
 -- ============================================================================
 -- ROW LEVEL SECURITY — cada household só enxerga seus próprios dados
 -- ============================================================================
@@ -152,6 +170,7 @@ alter table transactions enable row level security;
 alter table budgets enable row level security;
 alter table goals enable row level security;
 alter table investments enable row level security;
+alter table bills enable row level security;
 
 -- households: só vê a própria
 create policy "select own household" on households
@@ -205,6 +224,31 @@ create policy "select own household data" on investments
 create policy "modify own household data" on investments
   for all using (household_id = current_household_id())
   with check (household_id = current_household_id());
+
+create policy "select own household data" on bills
+  for select using (household_id = current_household_id());
+create policy "modify own household data" on bills
+  for all using (household_id = current_household_id())
+  with check (household_id = current_household_id());
+
+-- ============================================================================
+-- STORAGE: bucket público de avatars, cada usuário só escreve no próprio arquivo
+-- ============================================================================
+insert into storage.buckets (id, name, public)
+values ('avatars', 'avatars', true)
+on conflict (id) do nothing;
+
+create policy "avatar images are publicly accessible"
+  on storage.objects for select
+  using (bucket_id = 'avatars');
+
+create policy "users can upload their own avatar"
+  on storage.objects for insert
+  with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "users can update their own avatar"
+  on storage.objects for update
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
 
 -- ============================================================================
 -- TRIGGER: ao criar um novo usuário (signup), cria household + profile

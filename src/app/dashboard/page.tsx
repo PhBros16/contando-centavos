@@ -1,28 +1,38 @@
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Hero } from "@/components/Hero";
+import { QuickAddTransaction } from "@/components/QuickAddTransaction";
 import { CashFlowChart } from "@/components/CashFlowChart";
 import { TransactionList } from "@/components/TransactionList";
 import { BudgetList } from "@/components/BudgetList";
 import { GoalList } from "@/components/GoalList";
+import { BillsList } from "@/components/BillsList";
 import { ForecastCard } from "@/components/ForecastCard";
 import { projectBalance, projectBudgetOverrun } from "@/lib/forecast";
 import { formatMonthLabel } from "@/lib/format";
-import type { Transaction, Budget, Goal, RecurringRule, MonthlyFlowPoint } from "@/lib/types";
+import type { Transaction, Budget, Goal, RecurringRule, MonthlyFlowPoint, Bill, Profile } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const supabase = createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const [
+    { data: profile },
     { data: accounts },
     { data: transactions },
     { data: budgets },
     { data: goals },
     { data: recurringRules },
+    { data: bills },
   ] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user!.id).single(),
     supabase.from("accounts").select("*").eq("archived", false),
     supabase
       .from("transactions")
@@ -32,6 +42,7 @@ export default async function DashboardPage() {
     supabase.from("budgets").select("*, category:categories(name)"),
     supabase.from("goals").select("*"),
     supabase.from("recurring_rules").select("*").eq("active", true),
+    supabase.from("bills").select("*, category:categories(name)").order("due_date"),
   ]);
 
   const currentBalance = (accounts ?? []).reduce((sum, a) => sum + Number(a.initial_balance), 0);
@@ -75,9 +86,21 @@ export default async function DashboardPage() {
             <div className="text-[13.5px] text-ink-faint mb-1">
               {now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
             </div>
-            <h1 className="font-display text-2xl font-medium">Visão geral da família</h1>
+            <h1 className="font-display text-2xl font-medium">
+              Olá, {(profile as Profile | null)?.full_name?.split(" ")[0] ?? "por aqui"}
+            </h1>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            {profile && (
+              <UserAvatar
+                profileId={(profile as Profile).id}
+                fullName={(profile as Profile).full_name}
+                avatarUrl={(profile as Profile).avatar_url}
+                avatarColor={(profile as Profile).avatar_color}
+              />
+            )}
+          </div>
         </div>
 
         <Hero
@@ -88,6 +111,10 @@ export default async function DashboardPage() {
           sparklinePoints="M2,30 C 20,26 30,32 46,24 C 62,16 70,22 88,18 C 106,14 116,10 132,12 C 150,14 160,6 176,8 C 194,10 204,4 218,4"
         />
 
+        <div className="mt-6">
+          <QuickAddTransaction accountId={accounts?.[0]?.id ?? null} />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-10 mt-8">
           <div className="flex flex-col gap-10">
             <CashFlowChart data={monthlyFlow} />
@@ -95,6 +122,7 @@ export default async function DashboardPage() {
           </div>
 
           <div className="flex flex-col gap-10">
+            <BillsList bills={(bills ?? []) as Bill[]} />
             <BudgetList budgets={budgetsWithUsage} />
             <GoalList goals={(goals ?? []) as Goal[]} />
             <ForecastCard projectedBalance={projectedBalance} alertMessage={alertMessage} />

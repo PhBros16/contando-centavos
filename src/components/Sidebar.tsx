@@ -3,6 +3,7 @@
 const NAV_ITEMS = [
   { label: "Visão geral", icon: "home" },
   { label: "Transações", icon: "list" },
+  { label: "Despesas", icon: "bill" },
   { label: "Orçamento", icon: "budget" },
   { label: "Metas", icon: "goal" },
   { label: "Investimentos", icon: "trend" },
@@ -17,6 +18,12 @@ const ICONS: Record<string, React.ReactNode> = {
     </>
   ),
   list: <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />,
+  bill: (
+    <>
+      <path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9 8h6M9 12h6" strokeLinecap="round" />
+    </>
+  ),
   budget: (
     <>
       <rect x="3.5" y="5" width="17" height="14" rx="2.5" />
