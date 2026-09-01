@@ -11,6 +11,9 @@ const NAV_ITEMS = [
   { label: "Orçamento", icon: "budget", href: "/dashboard/budgets/new", real: true },
   { label: "Metas", icon: "goal", href: "/dashboard/goals/new", real: true },
   { label: "Recorrências", icon: "repeat", href: "/dashboard/recurring/new", real: true },
+  { label: "Importar", icon: "upload", href: "/dashboard/import", real: true },
+  { label: "Simulador", icon: "simulator", href: "/dashboard/simulator", real: true },
+  { label: "Guia", icon: "book", href: "/dashboard/guide", real: true },
 ];
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -65,6 +68,25 @@ const ICONS: Record<string, React.ReactNode> = {
       <path d="M21 13v2a4 4 0 0 1-4 4H3" strokeLinecap="round" strokeLinejoin="round" />
     </>
   ),
+  book: (
+    <>
+      <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5v-17Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 19a2.5 2.5 0 0 1 2.5-2.5H20" strokeLinecap="round" strokeLinejoin="round" />
+    </>
+  ),
+  upload: (
+    <>
+      <path d="M12 16V4M12 4 7 9M12 4l5 5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" strokeLinecap="round" strokeLinejoin="round" />
+    </>
+  ),
+  simulator: (
+    <>
+      <path d="M4 20 4 12 10 12 10 20" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M14 20 14 4 20 4 20 20" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 20h16" strokeLinecap="round" />
+    </>
+  ),
 };
 
 export function Sidebar({ activeLabel }: { activeLabel?: string }) {
@@ -85,13 +107,13 @@ export function Sidebar({ activeLabel }: { activeLabel?: string }) {
         </nav>
       </aside>
 
-      {/* Mobile: barra fixa inferior com os itens principais */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 flex justify-around border-t border-hairline bg-paper-raised px-1 py-2">
-        {NAV_ITEMS.slice(0, 5).map((item) => (
+      {/* Mobile: barra fixa inferior, rolável horizontalmente pra caber tudo */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 flex gap-1 overflow-x-auto border-t border-hairline bg-paper-raised px-2 py-2">
+        {NAV_ITEMS.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`flex flex-col items-center gap-1 px-2 py-1 text-[10px] ${
+            className={`flex flex-col items-center gap-1 px-3 py-1 text-[10px] shrink-0 ${
               isActive(item) ? "text-brand" : "text-ink-faint"
             }`}
           >

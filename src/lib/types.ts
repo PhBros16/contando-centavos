@@ -24,6 +24,7 @@ export type Transaction = {
   account_id: string;
   category_id: string | null;
   profile_id: string | null;
+  recurring_rule_id: string | null;
   description: string;
   amount: number;
   occurred_at: string;

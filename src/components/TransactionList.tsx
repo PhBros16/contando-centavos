@@ -30,6 +30,7 @@ export function TransactionList({ transactions }: { transactions: Transaction[] 
                 <div className="text-sm font-semibold truncate">{tx.description}</div>
                 <div className="text-xs text-ink-faint mt-0.5 truncate">
                   {tx.category?.name ?? "Sem categoria"} · {formatDateLabel(tx.occurred_at)}
+                  {tx.recurring_rule_id && " · ↻ recorrente"}
                 </div>
               </div>
               <div

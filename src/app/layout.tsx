@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Manrope } from "next/font/google";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -15,14 +16,26 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Contando Centavos — Acompanhamento financeiro familiar",
-  description: "Contas, orçamento, metas e previsões da sua família em um só lugar.",
+  title: "Contando Centavos — Acompanhamento financeiro pessoal",
+  description: "Contas, orçamento, metas e previsões, tudo em um só lugar.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/icons/icon-192.png",
+    apple: "/icons/apple-touch-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#2F5D50",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${fraunces.variable} ${manrope.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ServiceWorkerRegister />
+      </body>
     </html>
   );
 }

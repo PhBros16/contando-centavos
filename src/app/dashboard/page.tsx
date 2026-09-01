@@ -13,6 +13,7 @@ import { GoalList } from "@/components/GoalList";
 import { BillsList } from "@/components/BillsList";
 import { ForecastCard } from "@/components/ForecastCard";
 import { projectBalance, projectBudgetOverrun } from "@/lib/forecast";
+import { processDueRecurringRules } from "@/lib/processRecurring";
 import { formatMonthLabel } from "@/lib/format";
 import type { Transaction, Budget, Goal, RecurringRule, MonthlyFlowPoint, Bill, Profile } from "@/lib/types";
 
@@ -24,6 +25,10 @@ export default async function DashboardPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // Antes de mostrar qualquer número, gera as transações de recorrências
+  // que já venceram (salário, assinaturas etc.)
+  await processDueRecurringRules(supabase);
 
   const now = new Date();
   const firstOfMonthStr = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
