@@ -125,6 +125,7 @@ create table goals (
   current_amount numeric(14,2) not null default 0,
   target_date date,
   color text default '#B08A42',
+  photo_url text,
   created_at timestamptz not null default now()
 );
 
@@ -250,6 +251,22 @@ create policy "users can upload their own avatar"
 create policy "users can update their own avatar"
   on storage.objects for update
   using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+insert into storage.buckets (id, name, public)
+values ('goal-photos', 'goal-photos', true)
+on conflict (id) do nothing;
+
+create policy "goal photos are publicly accessible"
+  on storage.objects for select
+  using (bucket_id = 'goal-photos');
+
+create policy "household can upload its own goal photos"
+  on storage.objects for insert
+  with check (bucket_id = 'goal-photos' and (storage.foldername(name))[1] = current_household_id()::text);
+
+create policy "household can update its own goal photos"
+  on storage.objects for update
+  using (bucket_id = 'goal-photos' and (storage.foldername(name))[1] = current_household_id()::text);
 
 -- ============================================================================
 -- TRIGGER: ao criar um novo usuário (signup), cria household + profile

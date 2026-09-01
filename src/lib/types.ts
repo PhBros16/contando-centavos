@@ -49,6 +49,7 @@ export type Goal = {
   current_amount: number;
   target_date: string | null;
   color: string;
+  photo_url: string | null;
 };
 
 export type RecurringRule = {

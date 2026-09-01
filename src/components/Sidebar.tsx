@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { label: "Categorias", icon: "tag", href: "/dashboard/categories", real: true },
   { label: "Despesas", icon: "bill", href: "/dashboard", real: false },
   { label: "Orçamento", icon: "budget", href: "/dashboard", real: false },
-  { label: "Metas", icon: "goal", href: "/dashboard", real: false },
+  { label: "Metas", icon: "goal", href: "/dashboard/goals/new", real: true },
   { label: "Previsões", icon: "forecast", href: "/dashboard", real: false },
 ];
 
