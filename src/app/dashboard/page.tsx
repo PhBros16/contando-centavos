@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserAvatar } from "@/components/UserAvatar";
+import { LogoutButton } from "@/components/LogoutButton";
 import { Hero } from "@/components/Hero";
 import { QuickAddTransaction } from "@/components/QuickAddTransaction";
 import { CashFlowChart } from "@/components/CashFlowChart";
@@ -93,6 +94,7 @@ export default async function DashboardPage() {
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            <LogoutButton />
             {profile && (
               <UserAvatar
                 profileId={(profile as Profile).id}

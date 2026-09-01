@@ -1,19 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+
+const STORAGE_KEY = "cc_remembered_user";
+
+type RememberedUser = { name: string; email: string };
+
+function saveRememberedUser(user: RememberedUser) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  } catch {
+    // localStorage pode falhar em modo privado — não é crítico, só perde a
+    // conveniência da tela de reconhecimento na próxima visita.
+  }
+}
+
+function readRememberedUser(): RememberedUser | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
+  const [remembered, setRemembered] = useState<RememberedUser | null | undefined>(undefined);
+  const [showFullForm, setShowFullForm] = useState(false);
+
   const [mode, setMode] = useState<"entrar" | "criar">("entrar");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [quickPassword, setQuickPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // undefined = ainda não checou; null = checou e não tem ninguém lembrado
+    setRemembered(readRememberedUser());
+  }, []);
+
+  async function rememberCurrentUser(userId: string, emailUsed: string, fallbackName?: string) {
+    const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", userId).single();
+    saveRememberedUser({ name: profile?.full_name ?? fallbackName ?? "por aqui", email: emailUsed });
+  }
+
+  async function handleQuickSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!remembered) return;
+    setError(null);
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: remembered.email,
+      password: quickPassword,
+    });
+
+    setLoading(false);
+    if (error) setError("Senha incorreta.");
+    else router.push("/dashboard");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -21,25 +73,78 @@ export default function LoginPage() {
     setLoading(true);
 
     if (mode === "entrar") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) setError("E-mail ou senha incorretos.");
-      else router.push("/dashboard");
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setError("E-mail ou senha incorretos.");
+      } else if (data.user) {
+        await rememberCurrentUser(data.user.id, email);
+        router.push("/dashboard");
+      }
     } else {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          // Uso individual por padrão: a "família" nasce com o nome da pessoa
-          // e pode ser renomeada depois nas configurações, quando ela decidir
-          // convidar alguém (ver seção "sistema de parceria" do roadmap).
           data: { full_name: fullName, household_name: `Espaço de ${fullName || "usuário"}` },
         },
       });
-      if (error) setError(error.message);
-      else router.push("/dashboard");
+      if (error) {
+        setError(error.message);
+      } else {
+        saveRememberedUser({ name: fullName, email });
+        router.push("/dashboard");
+      }
     }
 
     setLoading(false);
+  }
+
+  // Evita "piscar" a tela errada enquanto ainda não sabemos se há alguém lembrado
+  if (remembered === undefined) {
+    return <main className="min-h-screen bg-paper" />;
+  }
+
+  if (remembered && !showFullForm) {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-6 bg-paper">
+        <div className="w-full max-w-sm">
+          <div className="flex items-center gap-2.5 mb-10">
+            <div className="w-8 h-8 rounded-[9px] bg-brand flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-paper-raised" fill="none" strokeWidth="1.8">
+                <path d="M4 18 L10 10 L14 14 L20 5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <span className="font-display text-xl">Contando Centavos</span>
+          </div>
+
+          <h1 className="font-display text-2xl mb-1">
+            Olá, {remembered.name.split(" ")[0]} 👋 Bem-vindo de volta
+          </h1>
+          <p className="text-sm text-ink-soft mb-8">Para entrar, digite sua senha.</p>
+
+          <form onSubmit={handleQuickSubmit} className="flex flex-col gap-4">
+            <Field label="Senha" type="password" value={quickPassword} onChange={setQuickPassword} required />
+
+            {error && <p className="text-sm text-wine">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 bg-brand text-paper-raised rounded-lg py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+            >
+              {loading ? "Entrando…" : "Entrar"}
+            </button>
+          </form>
+
+          <button
+            onClick={() => setShowFullForm(true)}
+            className="mt-6 text-sm text-ink-soft hover:text-ink transition-colors"
+          >
+            Não é você? Entrar com outro e-mail
+          </button>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -58,9 +163,7 @@ export default function LoginPage() {
           {mode === "entrar" ? "Bem-vindo de volta" : "Comece sua jornada"}
         </h1>
         <p className="text-sm text-ink-soft mb-6">
-          {mode === "entrar"
-            ? "Entre para ver suas finanças."
-            : "Crie sua conta no Contando Centavos."}
+          {mode === "entrar" ? "Entre para ver suas finanças." : "Crie sua conta no Contando Centavos."}
         </p>
 
         <div className="flex rounded-lg border border-hairline overflow-hidden mb-6">
@@ -99,6 +202,15 @@ export default function LoginPage() {
             {loading ? "Aguarde…" : mode === "entrar" ? "Entrar" : "Criar conta"}
           </button>
         </form>
+
+        {remembered && (
+          <button
+            onClick={() => setShowFullForm(false)}
+            className="mt-6 text-sm text-ink-soft hover:text-ink transition-colors"
+          >
+            ← Voltar
+          </button>
+        )}
       </div>
     </main>
   );
