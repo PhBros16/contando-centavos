@@ -25,10 +25,16 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const now = new Date();
+  const firstOfMonthStr = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+  const sixMonthsAgoStr = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString().slice(0, 10);
+
   const [
     { data: profile },
     { data: accounts },
-    { data: transactions },
+    { data: recentTransactions },
+    { data: last6MonthsTransactions },
+    { data: allTimeAmounts },
     { data: budgets },
     { data: goals },
     { data: recurringRules },
@@ -41,31 +47,37 @@ export default async function DashboardPage() {
       .select("*, category:categories(name, color, icon)")
       .order("occurred_at", { ascending: false })
       .limit(5),
+    // Cobre tanto o gráfico de 6 meses quanto o total do mês atual
+    supabase.from("transactions").select("amount, occurred_at, category_id").gte("occurred_at", sixMonthsAgoStr),
+    // Saldo real = saldo inicial + TODAS as transações já lançadas (não só as recentes)
+    supabase.from("transactions").select("amount"),
     supabase.from("budgets").select("*, category:categories(name)"),
     supabase.from("goals").select("*"),
     supabase.from("recurring_rules").select("*").eq("active", true),
     supabase.from("bills").select("*, category:categories(name)").order("due_date"),
   ]);
 
-  const currentBalance = (accounts ?? []).reduce((sum, a) => sum + Number(a.initial_balance), 0);
+  const initialBalanceSum = (accounts ?? []).reduce((sum, a) => sum + Number(a.initial_balance), 0);
+  const transactionsDelta = (allTimeAmounts ?? []).reduce((sum, t) => sum + Number(t.amount), 0);
+  const currentBalance = initialBalanceSum + transactionsDelta;
 
-  const now = new Date();
-  const monthlyFlow = buildMonthlyFlow(now);
+  const monthlyFlow = buildMonthlyFlow(now, last6MonthsTransactions ?? []);
 
-  const income = (transactions ?? []).filter((t) => t.amount > 0).reduce((s, t) => s + Number(t.amount), 0);
-  const expense = (transactions ?? []).filter((t) => t.amount < 0).reduce((s, t) => s + Number(t.amount), 0);
+  const currentMonthTx = (last6MonthsTransactions ?? []).filter((t) => t.occurred_at >= firstOfMonthStr);
+  const income = currentMonthTx.filter((t) => t.amount > 0).reduce((s, t) => s + Number(t.amount), 0);
+  const expense = currentMonthTx.filter((t) => t.amount < 0).reduce((s, t) => s + Number(t.amount), 0);
 
   const projectedBalance = projectBalance({
     currentBalance,
     recurringRules: (recurringRules ?? []) as RecurringRule[],
-    historicalTransactions: (transactions ?? []) as Transaction[],
+    historicalTransactions: (last6MonthsTransactions ?? []) as Transaction[],
     days: 30,
   });
 
   const budgetsWithUsage: Budget[] = (budgets ?? []).map((b) => ({
     ...b,
     used: Math.abs(
-      (transactions ?? [])
+      currentMonthTx
         .filter((t) => t.category_id === b.category_id && t.amount < 0)
         .reduce((s, t) => s + Number(t.amount), 0)
     ),
@@ -77,6 +89,13 @@ export default async function DashboardPage() {
   const alertMessage = overBudget
     ? `Atenção: o gasto com ${overBudget.category?.name} tende a superar o orçado se o ritmo atual continuar.`
     : undefined;
+
+  const thisMonthNet = income + expense; // expense já é negativo
+  const balanceAtStartOfMonth = currentBalance - thisMonthNet;
+  const deltaPct =
+    balanceAtStartOfMonth !== 0 ? (thisMonthNet / Math.abs(balanceAtStartOfMonth)) * 100 : 0;
+
+  const transactions = recentTransactions;
 
   return (
     <div className="flex min-h-screen">
@@ -108,7 +127,7 @@ export default async function DashboardPage() {
 
         <Hero
           balance={currentBalance}
-          deltaPct={3.2}
+          deltaPct={deltaPct}
           income={income}
           expense={Math.abs(expense)}
           sparklinePoints="M2,30 C 20,26 30,32 46,24 C 62,16 70,22 88,18 C 106,14 116,10 132,12 C 150,14 160,6 176,8 C 194,10 204,4 218,4"
@@ -146,14 +165,25 @@ export default async function DashboardPage() {
   );
 }
 
-function buildMonthlyFlow(reference: Date): MonthlyFlowPoint[] {
-  // Placeholder até existir histórico suficiente — troque por uma consulta
-  // agregando transactions por mês assim que houver dados reais.
+function buildMonthlyFlow(
+  reference: Date,
+  transactions: { amount: number; occurred_at: string }[]
+): MonthlyFlowPoint[] {
   const points: MonthlyFlowPoint[] = [];
+
   for (let i = 5; i >= 0; i--) {
-    const d = new Date(reference.getFullYear(), reference.getMonth() - i, 1);
-    points.push({ month: formatMonthLabel(d), net: 0 });
+    const monthStart = new Date(reference.getFullYear(), reference.getMonth() - i, 1);
+    const monthEnd = new Date(reference.getFullYear(), reference.getMonth() - i + 1, 1);
+    const monthStartStr = monthStart.toISOString().slice(0, 10);
+    const monthEndStr = monthEnd.toISOString().slice(0, 10);
+
+    const net = transactions
+      .filter((t) => t.occurred_at >= monthStartStr && t.occurred_at < monthEndStr)
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    points.push({ month: formatMonthLabel(monthStart), net });
   }
+
   return points;
 }
 
