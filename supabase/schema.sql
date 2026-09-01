@@ -47,6 +47,7 @@ create table accounts (
   type text not null check (type in ('corrente', 'poupanca', 'cartao', 'carteira', 'investimento')),
   initial_balance numeric(14,2) not null default 0,
   color text default '#2F5D50',
+  institution text,
   archived boolean not null default false,
   created_at timestamptz not null default now()
 );
@@ -268,6 +269,21 @@ begin
 
   insert into profiles (id, household_id, full_name)
   values (new.id, new_household_id, coalesce(new.raw_user_meta_data->>'full_name', 'Novo usuário'));
+
+  insert into categories (household_id, name, kind, color, icon) values
+    (new_household_id, 'Alimentação', 'despesa', '#A6763D', '🍔'),
+    (new_household_id, 'Transporte', 'despesa', '#4A6FA5', '🚗'),
+    (new_household_id, 'Moradia', 'despesa', '#5C6B73', '🏠'),
+    (new_household_id, 'Saúde', 'despesa', '#8B3A48', '💊'),
+    (new_household_id, 'Lazer', 'despesa', '#7C6E92', '🎉'),
+    (new_household_id, 'Assinaturas', 'despesa', '#3E7C7C', '📱'),
+    (new_household_id, 'Educação', 'despesa', '#2F5D50', '🎓'),
+    (new_household_id, 'Compras', 'despesa', '#B08A42', '🛍️'),
+    (new_household_id, 'Outros', 'despesa', '#7A7A7A', '📦'),
+    (new_household_id, 'Salário', 'receita', '#2F5D50', '💰'),
+    (new_household_id, 'Freelance', 'receita', '#3E7C7C', '💻'),
+    (new_household_id, 'Investimentos', 'receita', '#B08A42', '📈'),
+    (new_household_id, 'Outros', 'receita', '#7A7A7A', '🔹');
 
   return new;
 end;

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -112,7 +113,17 @@ export default async function DashboardPage() {
         />
 
         <div className="mt-6">
-          <QuickAddTransaction accountId={accounts?.[0]?.id ?? null} />
+          {accounts && accounts.length > 0 ? (
+            <QuickAddTransaction accountId={accounts[0].id} />
+          ) : (
+            <Link
+              href="/dashboard/accounts/new"
+              className="flex items-center justify-between gap-3 rounded-card border border-dashed border-hairline bg-paper-raised px-4 py-3.5 text-sm text-ink-soft hover:text-ink transition-colors"
+            >
+              <span>Cadastre sua primeira conta pra começar a lançar valores.</span>
+              <span className="font-semibold text-brand shrink-0">Criar conta →</span>
+            </Link>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-10 mt-8">
