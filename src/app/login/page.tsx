@@ -12,7 +12,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [householdName, setHouseholdName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -30,7 +29,10 @@ export default function LoginPage() {
         email,
         password,
         options: {
-          data: { full_name: fullName, household_name: householdName || "Minha família" },
+          // Uso individual por padrão: a "família" nasce com o nome da pessoa
+          // e pode ser renomeada depois nas configurações, quando ela decidir
+          // convidar alguém (ver seção "sistema de parceria" do roadmap).
+          data: { full_name: fullName, household_name: `Espaço de ${fullName || "usuário"}` },
         },
       });
       if (error) setError(error.message);
@@ -41,7 +43,18 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-6 bg-paper">
+    <main className="min-h-screen flex items-center justify-center px-6 bg-paper relative">
+      {mode === "criar" && (
+        <button
+          onClick={() => setMode("entrar")}
+          aria-label="Voltar"
+          className="absolute top-6 left-6 w-9 h-9 rounded-full border border-hairline bg-paper-raised flex items-center justify-center hover:bg-hairline/10 transition-colors"
+        >
+          <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-ink-soft" fill="none" strokeWidth="1.8">
+            <path d="M15 5 8 12l7 7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      )}
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-2.5 mb-10">
           <div className="w-8 h-8 rounded-[9px] bg-brand flex items-center justify-center">
@@ -62,17 +75,7 @@ export default function LoginPage() {
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {mode === "criar" && (
-            <>
-              <Field label="Seu nome" value={fullName} onChange={setFullName} required />
-              <Field
-                label="Nome da família"
-                value={householdName}
-                onChange={setHouseholdName}
-                placeholder="ex: Família Rocha"
-              />
-            </>
-          )}
+          {mode === "criar" && <Field label="Seu nome" value={fullName} onChange={setFullName} required />}
           <Field label="E-mail" type="email" value={email} onChange={setEmail} required />
           <Field label="Senha" type="password" value={password} onChange={setPassword} required />
 
