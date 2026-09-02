@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 const STORAGE_KEY = "cc_remembered_user";
@@ -136,6 +137,10 @@ export default function LoginPage() {
             </button>
           </form>
 
+          <Link href="/forgot-password" className="mt-4 block text-xs text-ink-faint hover:text-ink transition-colors">
+            Esqueceu a senha?
+          </Link>
+
           <button
             onClick={() => setShowFullForm(true)}
             className="mt-6 text-sm text-ink-soft hover:text-ink transition-colors"
@@ -202,6 +207,12 @@ export default function LoginPage() {
             {loading ? "Aguarde…" : mode === "entrar" ? "Entrar" : "Criar conta"}
           </button>
         </form>
+
+        {mode === "entrar" && (
+          <Link href="/forgot-password" className="mt-4 block text-xs text-ink-faint hover:text-ink transition-colors">
+            Esqueceu a senha?
+          </Link>
+        )}
 
         {remembered && (
           <button
