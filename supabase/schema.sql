@@ -139,9 +139,25 @@ create table investments (
   asset_type text not null check (asset_type in ('renda_fixa', 'acao', 'fundo', 'cripto', 'outro')),
   invested_amount numeric(14,2) not null,
   current_value numeric(14,2) not null,
+  details jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
+
+-- Ledger de compra/venda — usado por Ações, FIIs e Cripto pra calcular preço
+-- médio e lucro realizado/não realizado.
+create table investment_operations (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references households(id) on delete cascade,
+  investment_id uuid not null references investments(id) on delete cascade,
+  type text not null check (type in ('compra', 'venda')),
+  quantity numeric(18,8) not null,
+  price numeric(14,4) not null,
+  operation_date date not null default current_date,
+  created_at timestamptz not null default now()
+);
+
+create index investment_operations_investment_idx on investment_operations(investment_id, operation_date);
 
 -- ----------------------------------------------------------------------------
 -- 9b. BILLS (despesas e compromissos com vencimento — diferente de transaction solta)
@@ -173,6 +189,7 @@ alter table budgets enable row level security;
 alter table goals enable row level security;
 alter table investments enable row level security;
 alter table bills enable row level security;
+alter table investment_operations enable row level security;
 
 -- households: só vê a própria
 create policy "select own household" on households
@@ -230,6 +247,12 @@ create policy "modify own household data" on investments
 create policy "select own household data" on bills
   for select using (household_id = current_household_id());
 create policy "modify own household data" on bills
+  for all using (household_id = current_household_id())
+  with check (household_id = current_household_id());
+
+create policy "select own household data" on investment_operations
+  for select using (household_id = current_household_id());
+create policy "modify own household data" on investment_operations
   for all using (household_id = current_household_id())
   with check (household_id = current_household_id());
 

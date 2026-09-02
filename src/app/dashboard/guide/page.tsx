@@ -39,6 +39,14 @@ const SECTIONS: { title: string; body: string }[] = [
     body: "Projeta seu saldo dos próximos 30 dias combinando as recorrências cadastradas com a média histórica de gastos soltos. Não é machine learning — é média móvel — mas já ajuda a antecipar se o mês fecha no azul.",
   },
   {
+    title: "Investimentos",
+    body: "Cadastre renda fixa, ações/FIIs, cripto ou fundos — os campos mudam conforme o tipo. Ações e cripto têm tabela de compra e venda com preço médio e lucro calculados automaticamente. Renda fixa projeta o valor atual por juros compostos.",
+  },
+  {
+    title: "Calculadoras de investimento",
+    body: "Três perguntas comuns respondidas na hora: quanto vou ter guardando por mês, quanto rendo aplicando um valor a X% ao mês, e quanto lucro tenho se vender uma ação a um preço específico.",
+  },
+  {
     title: "Simulador \"e se\"",
     body: "Escolha uma categoria e um percentual de corte pra ver, na hora, o quanto isso mudaria sua previsão de 30 dias. Bom pra decidir onde vale a pena economizar.",
   },

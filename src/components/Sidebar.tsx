@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { label: "Despesas", icon: "bill", href: "/dashboard/bills/new", real: true },
   { label: "Orçamento", icon: "budget", href: "/dashboard/budgets/new", real: true },
   { label: "Metas", icon: "goal", href: "/dashboard/goals/new", real: true },
+  { label: "Investimentos", icon: "trend", href: "/dashboard/investments", real: true },
   { label: "Recorrências", icon: "repeat", href: "/dashboard/recurring/new", real: true },
   { label: "Importar", icon: "upload", href: "/dashboard/import", real: true },
   { label: "Simulador", icon: "simulator", href: "/dashboard/simulator", real: true },
@@ -54,6 +55,12 @@ const ICONS: Record<string, React.ReactNode> = {
     <>
       <circle cx="12" cy="12" r="8" />
       <circle cx="12" cy="12" r="3.2" />
+    </>
+  ),
+  trend: (
+    <>
+      <path d="M4 16 9 9l4 4 7-9" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 20h16" strokeLinecap="round" />
     </>
   ),
   forecast: (

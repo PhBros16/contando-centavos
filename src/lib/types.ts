@@ -86,6 +86,44 @@ export type Bill = {
   category?: Pick<Category, "name">;
 };
 
+export type AssetType = "renda_fixa" | "acao" | "fundo" | "cripto" | "outro";
+
+export type RendaFixaDetails = {
+  rate_pct: number;
+  rate_period: "mensal" | "anual";
+  start_date: string;
+};
+
+export type AcaoDetails = {
+  ticker: string;
+  current_price: number;
+};
+
+export type FundoDetails = {
+  rate_pct?: number;
+};
+
+export type Investment = {
+  id: string;
+  household_id: string;
+  name: string;
+  asset_type: AssetType;
+  invested_amount: number;
+  current_value: number;
+  details: Record<string, unknown>;
+  updated_at: string;
+};
+
+export type InvestmentOperationRow = {
+  id: string;
+  household_id: string;
+  investment_id: string;
+  type: "compra" | "venda";
+  quantity: number;
+  price: number;
+  operation_date: string;
+};
+
 export type MonthlyFlowPoint = {
   month: string;
   net: number;
