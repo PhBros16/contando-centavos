@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { label: "Visão geral", icon: "home", href: "/dashboard", real: true },
-  { label: "Contas", icon: "wallet", href: "/dashboard/accounts/new", real: true },
+  { label: "Transações", icon: "list", href: "/dashboard/transactions", real: true },
+  { label: "Contas", icon: "wallet", href: "/dashboard/accounts", real: true },
   { label: "Categorias", icon: "tag", href: "/dashboard/categories", real: true },
   { label: "Despesas", icon: "bill", href: "/dashboard/bills/new", real: true },
   { label: "Orçamento", icon: "budget", href: "/dashboard/budgets/new", real: true },
@@ -23,6 +24,7 @@ const ICONS: Record<string, React.ReactNode> = {
       <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" strokeLinecap="round" strokeLinejoin="round" />
     </>
   ),
+  list: <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />,
   wallet: (
     <>
       <rect x="3" y="6" width="18" height="13" rx="2.5" />

@@ -5,6 +5,7 @@ export type Account = {
   type: "corrente" | "poupanca" | "cartao" | "carteira" | "investimento";
   initial_balance: number;
   color: string;
+  institution: string | null;
   archived: boolean;
 };
 

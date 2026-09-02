@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Transaction } from "@/lib/types";
 import { formatCurrency, formatDateLabel } from "@/lib/format";
 
@@ -6,7 +7,9 @@ export function TransactionList({ transactions }: { transactions: Transaction[] 
     <div>
       <div className="flex justify-between items-baseline mb-4">
         <h3 className="text-[15.5px] font-bold">Transações recentes</h3>
-        <span className="text-xs text-ink-faint">{transactions.length} últimas</span>
+        <Link href="/dashboard/transactions" className="text-xs font-semibold text-brand hover:underline">
+          Ver todas
+        </Link>
       </div>
       <div>
         {transactions.map((tx) => {
