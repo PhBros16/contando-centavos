@@ -51,6 +51,10 @@ const SECTIONS: { title: string; body: string }[] = [
     body: "Escolha uma categoria e um percentual de corte pra ver, na hora, o quanto isso mudaria sua previsão de 30 dias. Bom pra decidir onde vale a pena economizar.",
   },
   {
+    title: "Exportar",
+    body: "Duas opções: uma planilha Excel detalhada (todas as transações do período + resumo por categoria) ou um relatório visual resumido, pronto pra salvar como PDF ou imprimir.",
+  },
+  {
     title: "Importar CSV",
     body: "Se você já tem um histórico em planilha, importe de uma vez em vez de digitar transação por transação. O arquivo precisa ter colunas de data, descrição e valor.",
   },

@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { label: "Recorrências", icon: "repeat", href: "/dashboard/recurring/new", real: true },
   { label: "Importar", icon: "upload", href: "/dashboard/import", real: true },
   { label: "Simulador", icon: "simulator", href: "/dashboard/simulator", real: true },
+  { label: "Exportar", icon: "download", href: "/dashboard/export", real: true },
   { label: "Guia", icon: "book", href: "/dashboard/guide", real: true },
 ];
 
@@ -94,6 +95,12 @@ const ICONS: Record<string, React.ReactNode> = {
       <path d="M4 20 4 12 10 12 10 20" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M14 20 14 4 20 4 20 20" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M4 20h16" strokeLinecap="round" />
+    </>
+  ),
+  download: (
+    <>
+      <path d="M12 3v12M12 15 7 10M12 15l5-5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 19h16" strokeLinecap="round" />
     </>
   ),
 };
