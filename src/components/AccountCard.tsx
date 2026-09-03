@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Account } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
@@ -66,6 +67,15 @@ export function AccountCard({ account, balance }: { account: Account; balance: n
       </div>
 
       <div className="font-display text-base font-medium shrink-0">{formatCurrency(balance)}</div>
+
+      {account.type === "cartao" && account.closing_day && (
+        <Link
+          href={`/dashboard/accounts/${account.id}/invoice`}
+          className="text-xs font-semibold text-brand hover:underline shrink-0"
+        >
+          Fatura
+        </Link>
+      )}
 
       <button
         onClick={handleArchive}

@@ -48,6 +48,8 @@ create table accounts (
   initial_balance numeric(14,2) not null default 0,
   color text default '#2F5D50',
   institution text,
+  closing_day int check (closing_day between 1 and 31),
+  due_day int check (due_day between 1 and 31),
   archived boolean not null default false,
   created_at timestamptz not null default now()
 );
@@ -96,6 +98,12 @@ create table transactions (
   amount numeric(14,2) not null, -- positivo = receita, negativo = despesa
   occurred_at date not null default current_date,
   notes text,
+  receipt_path text,
+  installment_group_id uuid,
+  installment_number int,
+  installment_total int,
+  split_total_amount numeric(14,2),
+  split_count int,
   created_at timestamptz not null default now()
 );
 
@@ -290,6 +298,23 @@ create policy "household can upload its own goal photos"
 create policy "household can update its own goal photos"
   on storage.objects for update
   using (bucket_id = 'goal-photos' and (storage.foldername(name))[1] = current_household_id()::text);
+
+-- Comprovantes: bucket PRIVADO (diferente de avatars/goal-photos), acesso via signed URL
+insert into storage.buckets (id, name, public)
+values ('receipts', 'receipts', false)
+on conflict (id) do nothing;
+
+create policy "household can read its own receipts"
+  on storage.objects for select
+  using (bucket_id = 'receipts' and (storage.foldername(name))[1] = current_household_id()::text);
+
+create policy "household can upload its own receipts"
+  on storage.objects for insert
+  with check (bucket_id = 'receipts' and (storage.foldername(name))[1] = current_household_id()::text);
+
+create policy "household can delete its own receipts"
+  on storage.objects for delete
+  using (bucket_id = 'receipts' and (storage.foldername(name))[1] = current_household_id()::text);
 
 -- ============================================================================
 -- TRIGGER: ao criar um novo usuário (signup), cria household + profile

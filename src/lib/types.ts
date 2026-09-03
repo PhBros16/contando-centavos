@@ -6,6 +6,8 @@ export type Account = {
   initial_balance: number;
   color: string;
   institution: string | null;
+  closing_day: number | null;
+  due_day: number | null;
   archived: boolean;
 };
 
@@ -30,6 +32,12 @@ export type Transaction = {
   amount: number;
   occurred_at: string;
   notes: string | null;
+  receipt_path: string | null;
+  installment_group_id: string | null;
+  installment_number: number | null;
+  installment_total: number | null;
+  split_total_amount: number | null;
+  split_count: number | null;
   category?: Pick<Category, "name" | "color" | "icon">;
 };
 

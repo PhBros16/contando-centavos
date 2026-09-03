@@ -12,10 +12,22 @@ import { BudgetList } from "@/components/BudgetList";
 import { GoalList } from "@/components/GoalList";
 import { BillsList } from "@/components/BillsList";
 import { ForecastCard } from "@/components/ForecastCard";
+import { DueSoonBanner } from "@/components/DueSoonBanner";
+import { MonthComparison } from "@/components/MonthComparison";
 import { projectBalance, projectBudgetOverrun } from "@/lib/forecast";
 import { processDueRecurringRules } from "@/lib/processRecurring";
+import { compareMonthlySpend } from "@/lib/monthComparison";
 import { formatMonthLabel } from "@/lib/format";
-import type { Transaction, Budget, Goal, RecurringRule, MonthlyFlowPoint, Bill, Profile } from "@/lib/types";
+import type {
+  Transaction,
+  Budget,
+  Goal,
+  RecurringRule,
+  MonthlyFlowPoint,
+  Bill,
+  Profile,
+  Category,
+} from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +43,8 @@ export default async function DashboardPage() {
   await processDueRecurringRules(supabase);
 
   const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const in30DaysStr = new Date(now.getTime() + 30 * 86_400_000).toISOString().slice(0, 10);
   const firstOfMonthStr = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
   const sixMonthsAgoStr = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString().slice(0, 10);
 
@@ -39,11 +53,13 @@ export default async function DashboardPage() {
     { data: accounts },
     { data: recentTransactions },
     { data: last6MonthsTransactions },
-    { data: allTimeAmounts },
+    { data: pastAmounts },
+    { data: upcomingTransactions },
     { data: budgets },
     { data: goals },
     { data: recurringRules },
     { data: bills },
+    { data: allCategories },
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user!.id).single(),
     supabase.from("accounts").select("*").eq("archived", false),
@@ -52,18 +68,26 @@ export default async function DashboardPage() {
       .select("*, category:categories(name, color, icon)")
       .order("occurred_at", { ascending: false })
       .limit(5),
-    // Cobre tanto o gráfico de 6 meses quanto o total do mês atual
-    supabase.from("transactions").select("amount, occurred_at, category_id").gte("occurred_at", sixMonthsAgoStr),
-    // Saldo real = saldo inicial + TODAS as transações já lançadas (não só as recentes)
-    supabase.from("transactions").select("amount"),
+    // Cobre gráfico de 6 meses, total do mês e comparativo — só até hoje,
+    // pra não misturar parcelas futuras com histórico real
+    supabase
+      .from("transactions")
+      .select("amount, occurred_at, category_id")
+      .gte("occurred_at", sixMonthsAgoStr)
+      .lte("occurred_at", todayStr),
+    // Saldo real = saldo inicial + transações já ocorridas (não parcelas futuras)
+    supabase.from("transactions").select("amount").lte("occurred_at", todayStr),
+    // Parcelas/recorrências futuras conhecidas nos próximos 30 dias, pra entrar na previsão
+    supabase.from("transactions").select("amount").gt("occurred_at", todayStr).lte("occurred_at", in30DaysStr),
     supabase.from("budgets").select("*, category:categories(name)"),
     supabase.from("goals").select("*"),
     supabase.from("recurring_rules").select("*").eq("active", true),
     supabase.from("bills").select("*, category:categories(name)").order("due_date"),
+    supabase.from("categories").select("*"),
   ]);
 
   const initialBalanceSum = (accounts ?? []).reduce((sum, a) => sum + Number(a.initial_balance), 0);
-  const transactionsDelta = (allTimeAmounts ?? []).reduce((sum, t) => sum + Number(t.amount), 0);
+  const transactionsDelta = (pastAmounts ?? []).reduce((sum, t) => sum + Number(t.amount), 0);
   const currentBalance = initialBalanceSum + transactionsDelta;
 
   const monthlyFlow = buildMonthlyFlow(now, last6MonthsTransactions ?? []);
@@ -72,12 +96,15 @@ export default async function DashboardPage() {
   const income = currentMonthTx.filter((t) => t.amount > 0).reduce((s, t) => s + Number(t.amount), 0);
   const expense = currentMonthTx.filter((t) => t.amount < 0).reduce((s, t) => s + Number(t.amount), 0);
 
-  const projectedBalance = projectBalance({
-    currentBalance,
-    recurringRules: (recurringRules ?? []) as RecurringRule[],
-    historicalTransactions: (last6MonthsTransactions ?? []) as Transaction[],
-    days: 30,
-  });
+  const knownFutureAmount = (upcomingTransactions ?? []).reduce((s, t) => s + Number(t.amount), 0);
+
+  const projectedBalance =
+    projectBalance({
+      currentBalance,
+      recurringRules: (recurringRules ?? []) as RecurringRule[],
+      historicalTransactions: (last6MonthsTransactions ?? []) as Transaction[],
+      days: 30,
+    }) + knownFutureAmount;
 
   const budgetsWithUsage: Budget[] = (budgets ?? []).map((b) => ({
     ...b,
@@ -101,6 +128,22 @@ export default async function DashboardPage() {
     balanceAtStartOfMonth !== 0 ? (thisMonthNet / Math.abs(balanceAtStartOfMonth)) * 100 : 0;
 
   const transactions = recentTransactions;
+
+  // Categorias mais usadas (frequência nos últimos 6 meses), pro lançamento rápido
+  const categoryFrequency: Record<string, number> = {};
+  for (const t of last6MonthsTransactions ?? []) {
+    if (!t.category_id) continue;
+    categoryFrequency[t.category_id] = (categoryFrequency[t.category_id] ?? 0) + 1;
+  }
+  const categoriesById = new Map(((allCategories ?? []) as Category[]).map((c) => [c.id, c]));
+  const topCategories = Object.entries(categoryFrequency)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([id]) => categoriesById.get(id))
+    .filter((c): c is Category => Boolean(c));
+
+  const categoryNames = Object.fromEntries(((allCategories ?? []) as Category[]).map((c) => [c.id, c.name]));
+  const monthComparisonRows = compareMonthlySpend(last6MonthsTransactions ?? [], categoryNames, now);
 
   return (
     <div className="flex min-h-screen">
@@ -139,8 +182,13 @@ export default async function DashboardPage() {
         />
 
         <div className="mt-6">
-          {accounts && accounts.length > 0 ? (
-            <QuickAddTransaction accountId={accounts[0].id} />
+          <DueSoonBanner bills={(bills ?? []) as Bill[]} />
+          {accounts && accounts.length > 0 && profile ? (
+            <QuickAddTransaction
+              accountId={accounts[0].id}
+              householdId={(profile as Profile).household_id}
+              topCategories={topCategories}
+            />
           ) : (
             <Link
               href="/dashboard/accounts/new"
@@ -161,6 +209,7 @@ export default async function DashboardPage() {
           <div className="flex flex-col gap-10">
             <BillsList bills={(bills ?? []) as Bill[]} />
             <BudgetList budgets={budgetsWithUsage} />
+            <MonthComparison rows={monthComparisonRows} />
             <GoalList goals={(goals ?? []) as Goal[]} />
             <ForecastCard projectedBalance={projectedBalance} alertMessage={alertMessage} />
           </div>

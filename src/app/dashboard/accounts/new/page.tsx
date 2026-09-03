@@ -23,6 +23,8 @@ export default function NewAccountPage() {
   const [name, setName] = useState(BANK_PRESETS[0].name);
   const [type, setType] = useState("corrente");
   const [initialBalance, setInitialBalance] = useState("");
+  const [closingDay, setClosingDay] = useState("5");
+  const [dueDay, setDueDay] = useState("12");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,6 +55,8 @@ export default function NewAccountPage() {
       institution: bank.id === "outro" ? null : bank.name,
       color: bank.color,
       initial_balance: parseFloat(initialBalance.replace(",", ".")) || 0,
+      closing_day: type === "cartao" ? parseInt(closingDay) || null : null,
+      due_day: type === "cartao" ? parseInt(dueDay) || null : null,
     });
 
     setSaving(false);
@@ -122,6 +126,33 @@ export default function NewAccountPage() {
               className="rounded-lg border border-hairline bg-paper-raised px-3 py-2.5 text-sm font-display outline-none focus:border-brand transition-colors"
             />
           </label>
+
+          {type === "cartao" && (
+            <div className="flex gap-3">
+              <label className="flex-1 flex flex-col gap-1.5">
+                <span className="text-xs font-semibold text-ink-faint">Dia de fechamento</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={31}
+                  value={closingDay}
+                  onChange={(e) => setClosingDay(e.target.value)}
+                  className="rounded-lg border border-hairline bg-paper-raised px-3 py-2.5 text-sm outline-none focus:border-brand transition-colors"
+                />
+              </label>
+              <label className="flex-1 flex flex-col gap-1.5">
+                <span className="text-xs font-semibold text-ink-faint">Dia de vencimento</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={31}
+                  value={dueDay}
+                  onChange={(e) => setDueDay(e.target.value)}
+                  className="rounded-lg border border-hairline bg-paper-raised px-3 py-2.5 text-sm outline-none focus:border-brand transition-colors"
+                />
+              </label>
+            </div>
+          )}
 
           {error && <p className="text-sm text-wine">{error}</p>}
 

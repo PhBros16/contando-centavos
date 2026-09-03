@@ -48,7 +48,12 @@ export default async function TransactionsPage({
         </Link>
 
         <h1 className="font-display text-2xl font-medium mb-1">Transações</h1>
-        <p className="text-sm text-ink-soft mb-6">Histórico completo, com filtro e edição.</p>
+        <div className="flex justify-between items-baseline mb-6">
+          <p className="text-sm text-ink-soft">Histórico completo, com filtro e edição.</p>
+          <Link href="/dashboard/transactions/installment/new" className="text-sm font-semibold text-brand hover:underline">
+            + Compra parcelada
+          </Link>
+        </div>
 
         <form method="get" className="flex flex-wrap gap-2.5 mb-7">
           <input

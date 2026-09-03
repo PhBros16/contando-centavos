@@ -16,7 +16,27 @@ const SECTIONS: { title: string; body: string }[] = [
   },
   {
     title: "Lançamento rápido",
-    body: "O atalho 'Entrou / Saiu' no topo do painel — pra registrar um valor em poucos segundos, sem abrir formulário nenhum. Editável depois, se precisar corrigir algo.",
+    body: "Toque numa das categorias 'mais usadas' pra preencher tipo e descrição sozinho, digite o valor e pronto. Também dá pra dividir uma despesa entre várias pessoas (registra só a sua parte) e anexar o comprovante logo depois de lançar. Editável depois na tela de Transações.",
+  },
+  {
+    title: "Comprovantes",
+    body: "Anexe uma foto ou PDF a qualquer transação, como prova do gasto. Fica guardado num espaço privado — só você acessa, mesmo que alguém tenha o link.",
+  },
+  {
+    title: "Compra parcelada",
+    body: "Lance uma compra em N vezes de uma só vez — o sistema cria automaticamente uma transação por mês, com um selo tipo '3/10' pra identificar. Acessível pela tela de Transações.",
+  },
+  {
+    title: "Fatura de cartão",
+    body: "Contas do tipo cartão podem ter dia de fechamento e vencimento configurados. A tela de fatura agrupa as compras do ciclo atual e mostra quando vence.",
+  },
+  {
+    title: "Aviso de vencimento",
+    body: "Um banner aparece no painel quando alguma despesa está vencendo nos próximos dias ou já atrasada.",
+  },
+  {
+    title: "Comparado ao mês passado",
+    body: "No painel, veja rapidamente quais categorias tiveram alta ou queda de gasto em relação ao mês anterior.",
   },
   {
     title: "Despesas",
