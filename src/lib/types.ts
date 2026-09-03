@@ -60,6 +60,7 @@ export type Goal = {
   target_date: string | null;
   color: string;
   photo_url: string | null;
+  linked_account_id: string | null;
 };
 
 export type RecurringRule = {
@@ -80,6 +81,7 @@ export type Profile = {
   full_name: string;
   avatar_url: string | null;
   avatar_color: string;
+  onboarding_dismissed: boolean;
 };
 
 export type Bill = {

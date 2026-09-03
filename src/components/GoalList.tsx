@@ -3,7 +3,7 @@ import type { Goal } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
 import { motivationalPhrase } from "@/lib/motivationalPhrases";
 
-export function GoalList({ goals }: { goals: Goal[] }) {
+export function GoalList({ goals, accountBalances }: { goals: Goal[]; accountBalances: Record<string, number> }) {
   return (
     <div>
       <div className="flex justify-between items-baseline mb-4">
@@ -24,7 +24,10 @@ export function GoalList({ goals }: { goals: Goal[] }) {
 
       <div className="flex flex-col gap-4">
         {goals.map((g) => {
-          const pct = Math.min(Math.round((g.current_amount / g.target_amount) * 100), 100);
+          const currentAmount = g.linked_account_id
+            ? accountBalances[g.linked_account_id] ?? g.current_amount
+            : g.current_amount;
+          const pct = Math.min(Math.round((currentAmount / g.target_amount) * 100), 100);
           const phrase = motivationalPhrase(pct, g.id);
 
           return (
@@ -65,7 +68,8 @@ export function GoalList({ goals }: { goals: Goal[] }) {
                   />
                 </div>
                 <div className="text-xs text-ink-faint mt-1.5">
-                  {formatCurrency(g.current_amount)} de {formatCurrency(g.target_amount)}
+                  {formatCurrency(currentAmount)} de {formatCurrency(g.target_amount)}
+                  {g.linked_account_id && " · vinculada a conta"}
                 </div>
                 <p className="text-xs italic text-ink-soft mt-2 leading-relaxed">{phrase}</p>
               </div>

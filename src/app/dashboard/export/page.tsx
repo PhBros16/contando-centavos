@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { ExcelExportClient } from "@/components/ExcelExportClient";
+import { BackupExportClient } from "@/components/BackupExportClient";
 
 export default function ExportPage() {
   const today = new Date().toISOString().slice(0, 10);
@@ -46,6 +47,16 @@ export default function ExportPage() {
           >
             Ver relatório do mês
           </Link>
+        </div>
+
+        <div className="rounded-card border border-hairline p-5 mt-6">
+          <h3 className="text-[15.5px] font-bold mb-1">Backup completo</h3>
+          <p className="text-sm text-ink-soft mb-5">
+            Todos os seus dados (contas, categorias, transações, orçamentos, metas, despesas,
+            recorrências, investimentos) num único arquivo JSON — pra guardar como cópia de
+            segurança ou levar pra outro lugar.
+          </p>
+          <BackupExportClient />
         </div>
       </main>
     </div>

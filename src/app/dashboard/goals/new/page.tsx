@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import type { Account } from "@/lib/types";
 
 const SUGGESTED_COLORS = ["#B08A42", "#2F5D50", "#8B3A48", "#4A6FA5", "#7C6E92", "#3E7C7C"];
 
@@ -12,6 +13,8 @@ export default function NewGoalPage() {
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [linkedAccountId, setLinkedAccountId] = useState("");
   const [name, setName] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
   const [currentAmount, setCurrentAmount] = useState("");
@@ -21,6 +24,15 @@ export default function NewGoalPage() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("accounts")
+      .select("*")
+      .eq("archived", false)
+      .then(({ data }) => setAccounts((data ?? []) as Account[]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -65,6 +77,7 @@ export default function NewGoalPage() {
       target_date: targetDate || null,
       color,
       photo_url: photoUrl,
+      linked_account_id: linkedAccountId || null,
     });
 
     setSaving(false);
@@ -133,17 +146,46 @@ export default function NewGoalPage() {
               />
             </label>
             <label className="flex-1 flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-ink-faint">Já tenho guardado</span>
+              <span className="text-xs font-semibold text-ink-faint">
+                {linkedAccountId ? "Já tenho guardado (ignorado)" : "Já tenho guardado"}
+              </span>
               <input
                 type="text"
                 inputMode="decimal"
                 placeholder="R$ 0,00"
                 value={currentAmount}
                 onChange={(e) => setCurrentAmount(e.target.value)}
-                className="rounded-lg border border-hairline bg-paper-raised px-3 py-2.5 text-sm font-display outline-none focus:border-brand transition-colors"
+                disabled={!!linkedAccountId}
+                className="rounded-lg border border-hairline bg-paper-raised px-3 py-2.5 text-sm font-display outline-none focus:border-brand transition-colors disabled:opacity-50"
               />
             </label>
           </div>
+
+          {accounts.length > 0 && (
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold text-ink-faint">Vincular a uma conta (opcional)</span>
+              <select
+                value={linkedAccountId}
+                onChange={(e) => setLinkedAccountId(e.target.value)}
+                className="rounded-lg border border-hairline bg-paper-raised px-3 py-2.5 text-sm outline-none focus:border-brand transition-colors"
+              >
+                <option value="">Nenhuma — acompanhar manualmente</option>
+                {accounts.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name}
+                  </option>
+                ))}
+              </select>
+              {linkedAccountId && (
+                <p className="text-xs text-ink-faint mt-1">
+                  O progresso vai seguir o saldo dessa conta automaticamente. Só funciona bem se
+                  for uma conta <strong>dedicada</strong> a esse objetivo (tipo uma poupança só
+                  pra isso) — se for uma conta do dia a dia, o saldo sobe e desce por outros
+                  motivos e a meta fica enganosa.
+                </p>
+              )}
+            </label>
+          )}
 
           <label className="flex flex-col gap-1.5">
             <span className="text-xs font-semibold text-ink-faint">Prazo (opcional)</span>

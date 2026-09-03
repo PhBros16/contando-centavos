@@ -24,6 +24,7 @@ create table profiles (
   full_name text not null,
   avatar_color text default '#2F5D50',
   avatar_url text,
+  onboarding_dismissed boolean not null default false,
   created_at timestamptz not null default now()
 );
 
@@ -134,6 +135,7 @@ create table goals (
   target_date date,
   color text default '#B08A42',
   photo_url text,
+  linked_account_id uuid references accounts(id) on delete set null,
   created_at timestamptz not null default now()
 );
 

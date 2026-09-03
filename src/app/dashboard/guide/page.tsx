@@ -75,6 +75,22 @@ const SECTIONS: { title: string; body: string }[] = [
     body: "Escolha uma categoria e um percentual de corte pra ver, na hora, o quanto isso mudaria sua previsão de 30 dias. Bom pra decidir onde vale a pena economizar.",
   },
   {
+    title: "Patrimônio líquido",
+    body: "Quando você tem investimentos cadastrados, uma linha aparece embaixo do saldo somando contas + investimentos — o número consolidado de tudo que você tem.",
+  },
+  {
+    title: "Meta ligada a uma conta",
+    body: "Ao criar uma meta, você pode vincular a uma conta dedicada (tipo uma poupança só pra aquele objetivo) — o progresso passa a seguir o saldo da conta sozinho, sem precisar atualizar manualmente.",
+  },
+  {
+    title: "Primeiros passos",
+    body: "Um checklist aparece no painel pra quem está começando, com os passos essenciais. Pode pular a qualquer momento clicando em 'Pular'.",
+  },
+  {
+    title: "Backup completo",
+    body: "Na tela de Exportar, baixe um arquivo JSON com absolutamente todos os seus dados — útil como cópia de segurança extra, além dos dados já estarem seguros no Supabase.",
+  },
+  {
     title: "Exportar",
     body: "Duas opções: uma planilha Excel detalhada (todas as transações do período + resumo por categoria) ou um relatório visual resumido, pronto pra salvar como PDF ou imprimir.",
   },

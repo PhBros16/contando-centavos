@@ -14,6 +14,8 @@ import { BillsList } from "@/components/BillsList";
 import { ForecastCard } from "@/components/ForecastCard";
 import { DueSoonBanner } from "@/components/DueSoonBanner";
 import { MonthComparison } from "@/components/MonthComparison";
+import { NetWorthBand } from "@/components/NetWorthBand";
+import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { projectBalance, projectBudgetOverrun } from "@/lib/forecast";
 import { processDueRecurringRules } from "@/lib/processRecurring";
 import { compareMonthlySpend } from "@/lib/monthComparison";
@@ -60,6 +62,8 @@ export default async function DashboardPage() {
     { data: recurringRules },
     { data: bills },
     { data: allCategories },
+    { data: allAccountTransactions },
+    { data: investments },
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user!.id).single(),
     supabase.from("accounts").select("*").eq("archived", false),
@@ -84,6 +88,8 @@ export default async function DashboardPage() {
     supabase.from("recurring_rules").select("*").eq("active", true),
     supabase.from("bills").select("*, category:categories(name)").order("due_date"),
     supabase.from("categories").select("*"),
+    supabase.from("transactions").select("account_id, amount"),
+    supabase.from("investments").select("current_value"),
   ]);
 
   const initialBalanceSum = (accounts ?? []).reduce((sum, a) => sum + Number(a.initial_balance), 0);
@@ -145,6 +151,23 @@ export default async function DashboardPage() {
   const categoryNames = Object.fromEntries(((allCategories ?? []) as Category[]).map((c) => [c.id, c.name]));
   const monthComparisonRows = compareMonthlySpend(last6MonthsTransactions ?? [], categoryNames, now);
 
+  // Saldo individual por conta — alimenta metas vinculadas a uma conta dedicada
+  const accountBalances: Record<string, number> = {};
+  for (const acc of accounts ?? []) {
+    accountBalances[acc.id] = Number(acc.initial_balance);
+  }
+  for (const t of allAccountTransactions ?? []) {
+    if (accountBalances[t.account_id] !== undefined) {
+      accountBalances[t.account_id] += Number(t.amount);
+    }
+  }
+
+  const investmentsValue = (investments ?? []).reduce((s, i) => s + Number(i.current_value), 0);
+
+  const hasBudget = (budgets ?? []).length > 0;
+  const hasGoal = (goals ?? []).length > 0;
+  const hasTransaction = (allAccountTransactions ?? []).length > 0;
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -181,7 +204,18 @@ export default async function DashboardPage() {
           sparklinePoints="M2,30 C 20,26 30,32 46,24 C 62,16 70,22 88,18 C 106,14 116,10 132,12 C 150,14 160,6 176,8 C 194,10 204,4 218,4"
         />
 
+        <NetWorthBand liquidBalance={currentBalance} investmentsValue={investmentsValue} />
+
         <div className="mt-6">
+          {profile && !(profile as Profile).onboarding_dismissed && (
+            <OnboardingChecklist
+              profileId={(profile as Profile).id}
+              hasAccount={(accounts ?? []).length > 0}
+              hasTransaction={hasTransaction}
+              hasBudget={hasBudget}
+              hasGoal={hasGoal}
+            />
+          )}
           <DueSoonBanner bills={(bills ?? []) as Bill[]} />
           {accounts && accounts.length > 0 && profile ? (
             <QuickAddTransaction
@@ -210,7 +244,7 @@ export default async function DashboardPage() {
             <BillsList bills={(bills ?? []) as Bill[]} />
             <BudgetList budgets={budgetsWithUsage} />
             <MonthComparison rows={monthComparisonRows} />
-            <GoalList goals={(goals ?? []) as Goal[]} />
+            <GoalList goals={(goals ?? []) as Goal[]} accountBalances={accountBalances} />
             <ForecastCard projectedBalance={projectedBalance} alertMessage={alertMessage} />
           </div>
         </div>
