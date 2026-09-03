@@ -35,6 +35,10 @@ const SECTIONS: { title: string; body: string }[] = [
     body: "Um banner aparece no painel quando alguma despesa está vencendo nos próximos dias ou já atrasada.",
   },
   {
+    title: "Extrato",
+    body: "Veja todas as entradas e saídas organizadas por dia, semana, mês ou ano, com navegação pra frente/trás no tempo — como um extrato bancário de verdade.",
+  },
+  {
     title: "Comparado ao mês passado",
     body: "No painel, veja rapidamente quais categorias tiveram alta ou queda de gasto em relação ao mês anterior.",
   },

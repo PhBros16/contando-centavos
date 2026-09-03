@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const NAV_ITEMS = [
   { label: "Visão geral", icon: "home", href: "/dashboard", real: true },
   { label: "Transações", icon: "list", href: "/dashboard/transactions", real: true },
+  { label: "Extrato", icon: "calendar", href: "/dashboard/statement", real: true },
   { label: "Contas", icon: "wallet", href: "/dashboard/accounts", real: true },
   { label: "Categorias", icon: "tag", href: "/dashboard/categories", real: true },
   { label: "Despesas", icon: "bill", href: "/dashboard/bills/new", real: true },
@@ -28,6 +29,12 @@ const ICONS: Record<string, React.ReactNode> = {
     </>
   ),
   list: <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />,
+  calendar: (
+    <>
+      <rect x="3.5" y="5" width="17" height="15" rx="2.5" />
+      <path d="M3.5 9.5h17M8 3v4M16 3v4" strokeLinecap="round" />
+    </>
+  ),
   wallet: (
     <>
       <rect x="3" y="6" width="18" height="13" rx="2.5" />
