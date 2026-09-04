@@ -9,6 +9,18 @@ const STORAGE_KEY = "cc_remembered_user";
 
 type RememberedUser = { name: string; email: string };
 
+// Nunca esconder o erro de verdade atrás de uma mensagem genérica — isso foi
+// exatamente o que causou um bug grave: um e-mail não confirmado aparecia
+// como "senha incorreta", deixando a pessoa travada sem entender por quê.
+function translateAuthError(message: string): string {
+  const known: Record<string, string> = {
+    "Invalid login credentials": "E-mail ou senha incorretos.",
+    "Email not confirmed":
+      "Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada (e o spam) e clique no link de confirmação antes de entrar.",
+  };
+  return known[message] ?? message;
+}
+
 function saveRememberedUser(user: RememberedUser) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
@@ -40,6 +52,7 @@ export default function LoginPage() {
   const [fullName, setFullName] = useState("");
   const [quickPassword, setQuickPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -56,6 +69,7 @@ export default function LoginPage() {
     e.preventDefault();
     if (!remembered) return;
     setError(null);
+    setInfo(null);
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -64,19 +78,20 @@ export default function LoginPage() {
     });
 
     setLoading(false);
-    if (error) setError("Senha incorreta.");
+    if (error) setError(translateAuthError(error.message));
     else router.push("/dashboard");
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setInfo(null);
     setLoading(true);
 
     if (mode === "entrar") {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        setError("E-mail ou senha incorretos.");
+        setError(translateAuthError(error.message));
       } else if (data.user) {
         await rememberCurrentUser(data.user.id, email);
         router.push("/dashboard");
@@ -89,8 +104,15 @@ export default function LoginPage() {
           data: { full_name: fullName, household_name: `Espaço de ${fullName || "usuário"}` },
         },
       });
+
       if (error) {
-        setError(error.message);
+        setError(translateAuthError(error.message));
+      } else if (!data.session) {
+        // Conta criada, mas o Supabase exige confirmação por e-mail antes de
+        // liberar uma sessão de verdade — sem isso, empurrar pro /dashboard
+        // só faria a pessoa ser jogada de volta pro login, confusa.
+        saveRememberedUser({ name: fullName, email });
+        setInfo("Conta criada! Verifique seu e-mail e clique no link de confirmação antes de entrar.");
       } else {
         saveRememberedUser({ name: fullName, email });
         router.push("/dashboard");
@@ -198,6 +220,7 @@ export default function LoginPage() {
           <Field label="Senha" type="password" value={password} onChange={setPassword} required />
 
           {error && <p className="text-sm text-wine">{error}</p>}
+          {info && <p className="text-sm text-brand">{info}</p>}
 
           <button
             type="submit"
