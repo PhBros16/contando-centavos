@@ -132,7 +132,7 @@ export default function NewGoalPage() {
             />
           </label>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <label className="flex-1 flex flex-col gap-1.5">
               <span className="text-xs font-semibold text-ink-faint">Valor alvo</span>
               <input

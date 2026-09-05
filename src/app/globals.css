@@ -56,3 +56,15 @@ body {
   outline: 2px solid rgb(var(--brand));
   outline-offset: 2px;
 }
+
+/* O Safari do iOS dá zoom automático ao focar um input com fonte menor que
+   16px — isso causava caixas saindo da tela em telas de formulário.
+   Forçamos 16px só no mobile, mantendo o visual (font-size menor via
+   Tailwind) intacto no desktop. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}

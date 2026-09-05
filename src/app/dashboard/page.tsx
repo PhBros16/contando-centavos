@@ -33,7 +33,13 @@ import type {
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+const VALID_MONTH_WINDOWS = [3, 6, 12, 24];
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { months?: string };
+}) {
   const supabase = createClient();
 
   const {
@@ -44,11 +50,16 @@ export default async function DashboardPage() {
   // que já venceram (salário, assinaturas etc.)
   await processDueRecurringRules(supabase);
 
+  const requestedMonths = parseInt(searchParams.months ?? "6", 10);
+  const chartMonths = VALID_MONTH_WINDOWS.includes(requestedMonths) ? requestedMonths : 6;
+
   const now = new Date();
   const todayStr = now.toISOString().slice(0, 10);
   const in30DaysStr = new Date(now.getTime() + 30 * 86_400_000).toISOString().slice(0, 10);
   const firstOfMonthStr = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-  const sixMonthsAgoStr = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString().slice(0, 10);
+  const chartWindowStartStr = new Date(now.getFullYear(), now.getMonth() - (chartMonths - 1), 1)
+    .toISOString()
+    .slice(0, 10);
 
   const [
     { data: profile },
@@ -72,12 +83,12 @@ export default async function DashboardPage() {
       .select("*, category:categories(name, color, icon)")
       .order("occurred_at", { ascending: false })
       .limit(5),
-    // Cobre gráfico de 6 meses, total do mês e comparativo — só até hoje,
-    // pra não misturar parcelas futuras com histórico real
+    // Cobre gráfico (janela escolhida), total do mês e comparativo — só até
+    // hoje, pra não misturar parcelas futuras com histórico real
     supabase
       .from("transactions")
       .select("amount, occurred_at, category_id")
-      .gte("occurred_at", sixMonthsAgoStr)
+      .gte("occurred_at", chartWindowStartStr)
       .lte("occurred_at", todayStr),
     // Saldo real = saldo inicial + transações já ocorridas (não parcelas futuras)
     supabase.from("transactions").select("amount").lte("occurred_at", todayStr),
@@ -96,7 +107,7 @@ export default async function DashboardPage() {
   const transactionsDelta = (pastAmounts ?? []).reduce((sum, t) => sum + Number(t.amount), 0);
   const currentBalance = initialBalanceSum + transactionsDelta;
 
-  const monthlyFlow = buildMonthlyFlow(now, last6MonthsTransactions ?? []);
+  const monthlyFlow = buildMonthlyFlow(now, last6MonthsTransactions ?? [], chartMonths);
 
   const currentMonthTx = (last6MonthsTransactions ?? []).filter((t) => t.occurred_at >= firstOfMonthStr);
   const income = currentMonthTx.filter((t) => t.amount > 0).reduce((s, t) => s + Number(t.amount), 0);
@@ -236,7 +247,7 @@ export default async function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-10 mt-8">
           <div className="flex flex-col gap-10">
-            <CashFlowChart data={monthlyFlow} />
+            <CashFlowChart data={monthlyFlow} months={chartMonths} />
             <TransactionList transactions={(transactions ?? []) as Transaction[]} />
           </div>
 
@@ -255,11 +266,12 @@ export default async function DashboardPage() {
 
 function buildMonthlyFlow(
   reference: Date,
-  transactions: { amount: number; occurred_at: string }[]
+  transactions: { amount: number; occurred_at: string }[],
+  monthsCount: number
 ): MonthlyFlowPoint[] {
   const points: MonthlyFlowPoint[] = [];
 
-  for (let i = 5; i >= 0; i--) {
+  for (let i = monthsCount - 1; i >= 0; i--) {
     const monthStart = new Date(reference.getFullYear(), reference.getMonth() - i, 1);
     const monthEnd = new Date(reference.getFullYear(), reference.getMonth() - i + 1, 1);
     const monthStartStr = monthStart.toISOString().slice(0, 10);

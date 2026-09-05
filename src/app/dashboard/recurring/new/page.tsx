@@ -145,7 +145,7 @@ export default function NewRecurringPage() {
               className="rounded-lg border border-hairline bg-paper-raised px-3 py-2.5 text-sm outline-none focus:border-brand transition-colors"
             />
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="text"
                 inputMode="decimal"
@@ -168,7 +168,7 @@ export default function NewRecurringPage() {
               </select>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="date"
                 value={nextOccurrence}

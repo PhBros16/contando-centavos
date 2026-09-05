@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -19,6 +20,17 @@ const NAV_ITEMS = [
   { label: "Exportar", icon: "download", href: "/dashboard/export", real: true },
   { label: "Guia", icon: "book", href: "/dashboard/guide", real: true },
   { label: "Configurações", icon: "settings", href: "/dashboard/settings", real: true },
+];
+
+// Os 4 que ficam sempre visíveis na barra do celular — o resto vai pro "Mais"
+const MOBILE_PRIMARY_LABELS = ["Visão geral", "Transações", "Extrato", "Contas"];
+
+const MOBILE_MORE_GROUPS: { title: string; labels: string[] }[] = [
+  { title: "Lançamentos", labels: ["Categorias", "Despesas"] },
+  { title: "Planejamento", labels: ["Orçamento", "Metas", "Recorrências"] },
+  { title: "Investimentos", labels: ["Investimentos"] },
+  { title: "Ferramentas", labels: ["Importar", "Simulador", "Exportar", "Guia"] },
+  { title: "Conta", labels: ["Configurações"] },
 ];
 
 const ICONS: Record<string, React.ReactNode> = {
@@ -72,12 +84,6 @@ const ICONS: Record<string, React.ReactNode> = {
       <path d="M4 20h16" strokeLinecap="round" />
     </>
   ),
-  forecast: (
-    <>
-      <path d="M12 3v4M12 17v4M3 12h4M17 12h4" strokeLinecap="round" />
-      <circle cx="12" cy="12" r="4.5" />
-    </>
-  ),
   repeat: (
     <>
       <path d="M17 2 21 6l-4 4" strokeLinecap="round" strokeLinejoin="round" />
@@ -117,13 +123,27 @@ const ICONS: Record<string, React.ReactNode> = {
       <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.35a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.65 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.65 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.65a1.7 1.7 0 0 0 1.04-1.56V3a2 2 0 0 1 4 0v.09A1.7 1.7 0 0 0 15 4.65a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.35 9a1.7 1.7 0 0 0 1.56 1.04H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1.04Z" strokeLinecap="round" strokeLinejoin="round" />
     </>
   ),
+  more: (
+    <>
+      <circle cx="5" cy="12" r="1.6" />
+      <circle cx="12" cy="12" r="1.6" />
+      <circle cx="19" cy="12" r="1.6" />
+    </>
+  ),
 };
 
 export function Sidebar({ activeLabel }: { activeLabel?: string }) {
   const pathname = usePathname();
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const isActive = (item: (typeof NAV_ITEMS)[number]) =>
     item.real && (activeLabel ? item.label === activeLabel : pathname === item.href);
+
+  const byLabel = Object.fromEntries(NAV_ITEMS.map((i) => [i.label, i]));
+  const primaryItems = MOBILE_PRIMARY_LABELS.map((l) => byLabel[l]);
+  const moreIsActive = NAV_ITEMS.some(
+    (item) => !MOBILE_PRIMARY_LABELS.includes(item.label) && isActive(item)
+  );
 
   return (
     <>
@@ -137,13 +157,14 @@ export function Sidebar({ activeLabel }: { activeLabel?: string }) {
         </nav>
       </aside>
 
-      {/* Mobile: barra fixa inferior, rolável horizontalmente pra caber tudo */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 flex gap-1 overflow-x-auto border-t border-hairline bg-paper-raised px-2 py-2">
-        {NAV_ITEMS.map((item) => (
+      {/* Mobile: 4 itens fixos + "Mais" — sem scroll horizontal na borda,
+          que no iPhone conflita com o gesto do sistema */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 flex border-t border-hairline bg-paper-raised px-1 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
+        {primaryItems.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`flex flex-col items-center gap-1 px-3 py-1 text-[10px] shrink-0 ${
+            className={`flex-1 flex flex-col items-center gap-1 py-1 text-[10px] ${
               isActive(item) ? "text-brand" : "text-ink-faint"
             }`}
           >
@@ -153,8 +174,82 @@ export function Sidebar({ activeLabel }: { activeLabel?: string }) {
             {item.label.split(" ")[0]}
           </Link>
         ))}
+        <button
+          onClick={() => setMoreOpen(true)}
+          className={`flex-1 flex flex-col items-center gap-1 py-1 text-[10px] ${
+            moreIsActive ? "text-brand" : "text-ink-faint"
+          }`}
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" strokeWidth="1.6" stroke="currentColor">
+            {ICONS.more}
+          </svg>
+          Mais
+        </button>
       </nav>
+
+      {moreOpen && (
+        <MoreMenu onClose={() => setMoreOpen(false)} isActive={isActive} byLabel={byLabel} />
+      )}
     </>
+  );
+}
+
+function MoreMenu({
+  onClose,
+  isActive,
+  byLabel,
+}: {
+  onClose: () => void;
+  isActive: (item: (typeof NAV_ITEMS)[number]) => boolean;
+  byLabel: Record<string, (typeof NAV_ITEMS)[number]>;
+}) {
+  return (
+    <div className="md:hidden fixed inset-0 z-30 flex flex-col justify-end">
+      <button
+        onClick={onClose}
+        aria-label="Fechar"
+        className="absolute inset-0 bg-ink/40"
+      />
+      <div className="relative bg-paper rounded-t-2xl max-h-[80vh] overflow-y-auto pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4 px-5">
+        <div className="w-10 h-1 rounded-full bg-hairline/40 mx-auto mb-4" />
+        <div className="flex justify-between items-center mb-4">
+          <span className="font-display text-lg">Todas as funções</span>
+          <button onClick={onClose} className="text-sm text-ink-faint">
+            Fechar
+          </button>
+        </div>
+
+        {MOBILE_MORE_GROUPS.map((group) => (
+          <div key={group.title} className="mb-5">
+            <div className="text-xs font-bold text-ink-faint uppercase tracking-wide mb-2">
+              {group.title}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {group.labels.map((label) => {
+                const item = byLabel[label];
+                if (!item) return null;
+                const active = isActive(item);
+                return (
+                  <Link
+                    key={label}
+                    href={item.href}
+                    onClick={onClose}
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm border ${
+                      active ? "border-brand text-brand bg-brand-soft/10" : "border-hairline text-ink-soft"
+                    }`}
+                  >
+                    <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] shrink-0" fill="none" strokeWidth="1.6" stroke="currentColor">
+                      {ICONS[item.icon]}
+                    </svg>
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 

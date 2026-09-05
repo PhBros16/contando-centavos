@@ -122,6 +122,21 @@ export default function LoginPage() {
     setLoading(false);
   }
 
+  async function handleDemoLogin() {
+    setError(null);
+    setInfo(null);
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: "demo@contandocentavos.app",
+      password: "DemoContandoCentavos2026",
+    });
+
+    setLoading(false);
+    if (error) setError(translateAuthError(error.message));
+    else router.push("/dashboard");
+  }
+
   // Evita "piscar" a tela errada enquanto ainda não sabemos se há alguém lembrado
   if (remembered === undefined) {
     return <main className="min-h-screen bg-paper" />;
@@ -230,6 +245,17 @@ export default function LoginPage() {
             {loading ? "Aguarde…" : mode === "entrar" ? "Entrar" : "Criar conta"}
           </button>
         </form>
+
+        <button
+          onClick={handleDemoLogin}
+          disabled={loading}
+          className="mt-4 w-full border border-dashed border-hairline rounded-lg py-2.5 text-sm font-semibold text-ink-soft hover:text-ink hover:border-brand/40 transition-colors disabled:opacity-60"
+        >
+          Ver demo (dados de exemplo)
+        </button>
+        <p className="text-[11px] text-ink-faint mt-1.5 text-center">
+          Conta compartilhada só pra explorar o app — não use dados reais aqui.
+        </p>
 
         {mode === "entrar" && (
           <Link href="/forgot-password" className="mt-4 block text-xs text-ink-faint hover:text-ink transition-colors">

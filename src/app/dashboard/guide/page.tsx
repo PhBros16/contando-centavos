@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
+import { GuideAccordion } from "@/components/GuideAccordion";
 
 const SECTIONS: { title: string; body: string }[] = [
   {
     title: "Visão geral",
-    body: "O painel principal: seu saldo total (somando todas as contas + transações lançadas), receitas e despesas do mês, o gráfico de fluxo de caixa dos últimos 6 meses e a previsão de 30 dias.",
+    body: "O painel principal: seu saldo total (somando todas as contas + transações lançadas), receitas e despesas do mês, o gráfico de fluxo de caixa (com período ajustável de 3 a 24 meses) e a previsão de 30 dias.",
   },
   {
     title: "Contas",
@@ -125,16 +126,9 @@ export default function GuidePage() {
         </Link>
 
         <h1 className="font-display text-2xl font-medium mb-1">Como funciona</h1>
-        <p className="text-sm text-ink-soft mb-8">Um resumo rápido de cada parte do app.</p>
+        <p className="text-sm text-ink-soft mb-8">Toque num tópico pra abrir. Um resumo rápido de cada parte do app.</p>
 
-        <div>
-          {SECTIONS.map((s) => (
-            <div key={s.title} className="py-5 border-b border-hairline last:border-none">
-              <h3 className="text-[15px] font-bold mb-1.5">{s.title}</h3>
-              <p className="text-sm text-ink-soft leading-relaxed">{s.body}</p>
-            </div>
-          ))}
-        </div>
+        <GuideAccordion sections={SECTIONS} />
       </main>
     </div>
   );

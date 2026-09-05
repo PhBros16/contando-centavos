@@ -169,6 +169,15 @@ create table investment_operations (
 
 create index investment_operations_investment_idx on investment_operations(investment_id, operation_date);
 
+create table push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references households(id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth_key text not null,
+  created_at timestamptz not null default now()
+);
+
 -- ----------------------------------------------------------------------------
 -- 9b. BILLS (despesas e compromissos com vencimento — diferente de transaction solta)
 -- ----------------------------------------------------------------------------
@@ -200,6 +209,7 @@ alter table goals enable row level security;
 alter table investments enable row level security;
 alter table bills enable row level security;
 alter table investment_operations enable row level security;
+alter table push_subscriptions enable row level security;
 
 -- households: só vê a própria
 create policy "select own household" on households
@@ -263,6 +273,12 @@ create policy "modify own household data" on bills
 create policy "select own household data" on investment_operations
   for select using (household_id = current_household_id());
 create policy "modify own household data" on investment_operations
+  for all using (household_id = current_household_id())
+  with check (household_id = current_household_id());
+
+create policy "select own household data" on push_subscriptions
+  for select using (household_id = current_household_id());
+create policy "modify own household data" on push_subscriptions
   for all using (household_id = current_household_id())
   with check (household_id = current_household_id());
 
@@ -331,6 +347,11 @@ as $$
 declare
   new_household_id uuid;
 begin
+  -- Confirma o e-mail imediatamente, evitando ficar preso esperando
+  -- confirmação por link caso a config do painel exija isso por padrão.
+  update auth.users set email_confirmed_at = coalesce(email_confirmed_at, now())
+  where id = new.id;
+
   insert into households (name) values (coalesce(new.raw_user_meta_data->>'household_name', 'Minha família'))
   returning id into new_household_id;
 

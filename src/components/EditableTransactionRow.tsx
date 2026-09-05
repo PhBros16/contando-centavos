@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Account, Category, Transaction } from "@/lib/types";
@@ -21,6 +21,8 @@ export function EditableTransactionRow({
 
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(false);
+  const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [description, setDescription] = useState(transaction.description);
   const [amount, setAmount] = useState(Math.abs(transaction.amount).toString());
   const [isPositive, setIsPositive] = useState(transaction.amount > 0);
@@ -46,10 +48,33 @@ export function EditableTransactionRow({
     router.refresh();
   }
 
-  async function handleDelete() {
-    if (!confirm("Excluir esta transação?")) return;
-    await supabase.from("transactions").delete().eq("id", transaction.id);
-    router.refresh();
+  // Não apaga na hora — dá uma janela de alguns segundos pra desfazer,
+  // evitando aquele "ops, apaguei sem querer" de um clique acidental.
+  function handleDeleteClick() {
+    setPendingDelete(true);
+    deleteTimeoutRef.current = setTimeout(async () => {
+      await supabase.from("transactions").delete().eq("id", transaction.id);
+      router.refresh();
+    }, 5000);
+  }
+
+  function handleUndo() {
+    if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+    setPendingDelete(false);
+  }
+
+  if (pendingDelete) {
+    return (
+      <div
+        className="flex items-center justify-between gap-3 py-2.5 px-3 my-1 rounded-lg border-b border-hairline last:border-none"
+        style={{ background: "rgb(var(--wine) / 0.06)" }}
+      >
+        <span className="text-sm text-ink-soft">Transação excluída</span>
+        <button onClick={handleUndo} className="text-xs font-bold text-brand hover:underline">
+          Desfazer
+        </button>
+      </div>
+    );
   }
 
   if (editing) {
@@ -169,7 +194,7 @@ export function EditableTransactionRow({
         <button onClick={() => setEditing(true)} className="text-xs font-semibold text-brand hover:underline">
           Editar
         </button>
-        <button onClick={handleDelete} className="text-xs font-semibold text-wine hover:underline">
+        <button onClick={handleDeleteClick} className="text-xs font-semibold text-wine hover:underline">
           Excluir
         </button>
       </div>

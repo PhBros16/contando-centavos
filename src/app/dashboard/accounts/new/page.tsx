@@ -128,7 +128,7 @@ export default function NewAccountPage() {
           </label>
 
           {type === "cartao" && (
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <label className="flex-1 flex flex-col gap-1.5">
                 <span className="text-xs font-semibold text-ink-faint">Dia de fechamento</span>
                 <input
