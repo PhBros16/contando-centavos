@@ -104,6 +104,14 @@ const SECTIONS: { title: string; body: string }[] = [
     body: "Depois do primeiro login, o app lembra quem você é nesse navegador e só pede a senha nas próximas vezes. Esqueceu a senha? Tem recuperação por e-mail na tela de login. Seus dados são protegidos por Row Level Security no banco — ninguém além de você acessa suas informações, nem em tese.",
   },
   {
+    title: "Parceria",
+    body: "Em qualquer meta, você pode convidar alguém pra contribuir junto com você rumo ao mesmo objetivo — cada um com sua própria meta de contribuição, visível pra ambos.",
+  },
+  {
+    title: "Família",
+    body: "Um espaço opcional e mais amplo: quando duas households entram na mesma família, contas, transações, orçamento, despesas, recorrências, investimentos e metas de todos passam a aparecer juntos, como uma conta conjunta de verdade.",
+  },
+  {
     title: "Configurações",
     body: "Trocar nome, trocar senha, encerrar sessões abertas em outros dispositivos, ou excluir sua conta e todos os dados permanentemente.",
   },

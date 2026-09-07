@@ -71,6 +71,12 @@ export function GoalList({ goals, accountBalances }: { goals: Goal[]; accountBal
                   {formatCurrency(currentAmount)} de {formatCurrency(g.target_amount)}
                   {g.linked_account_id && " · vinculada a conta"}
                 </div>
+                <Link
+                  href={`/dashboard/goals/${g.id}`}
+                  className="text-xs font-semibold text-brand hover:underline mt-2 inline-block"
+                >
+                  {g.partnership_id ? "Ver parceria" : "Convidar alguém pra essa meta"}
+                </Link>
                 <p className="text-xs italic text-ink-soft mt-2 leading-relaxed">{phrase}</p>
               </div>
             </div>

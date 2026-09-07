@@ -61,6 +61,7 @@ export type Goal = {
   color: string;
   photo_url: string | null;
   linked_account_id: string | null;
+  partnership_id: string | null;
 };
 
 export type RecurringRule = {
@@ -82,6 +83,37 @@ export type Profile = {
   avatar_url: string | null;
   avatar_color: string;
   onboarding_dismissed: boolean;
+  public_id: string;
+};
+
+export type Partnership = {
+  id: string;
+  created_by: string;
+  invite_code: string;
+  created_at: string;
+};
+
+export type PartnershipMember = {
+  id: string;
+  partnership_id: string;
+  profile_id: string;
+  contribution_target: number;
+  contributed_amount: number;
+  profile?: Pick<Profile, "full_name">;
+};
+
+export type Family = {
+  id: string;
+  name: string;
+  invite_code: string;
+  created_at: string;
+};
+
+export type FamilyMember = {
+  id: string;
+  family_id: string;
+  household_id: string;
+  household?: { name: string };
 };
 
 export type Bill = {

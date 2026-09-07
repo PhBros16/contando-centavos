@@ -15,6 +15,14 @@ create table households (
   created_at timestamptz not null default now()
 );
 
+create or replace function generate_public_id()
+returns text
+language sql
+set search_path = public
+as $$
+  select substring(md5(random()::text || clock_timestamp()::text) from 1 for 7)
+$$;
+
 -- ----------------------------------------------------------------------------
 -- 2. PROFILES (um perfil por usuário autenticado, ligado a uma household)
 -- ----------------------------------------------------------------------------
@@ -25,6 +33,7 @@ create table profiles (
   avatar_color text default '#2F5D50',
   avatar_url text,
   onboarding_dismissed boolean not null default false,
+  public_id text unique default generate_public_id(),
   created_at timestamptz not null default now()
 );
 
@@ -37,6 +46,57 @@ set search_path = public
 as $$
   select household_id from profiles where id = auth.uid()
 $$;
+
+-- ----------------------------------------------------------------------------
+-- FAMÍLIA: espaço amplo e opcional, tipo "conta conjunta" entre households
+-- ----------------------------------------------------------------------------
+create table families (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  invite_code text not null unique default substring(md5(random()::text) from 1 for 8),
+  created_at timestamptz not null default now()
+);
+
+create table family_members (
+  id uuid primary key default gen_random_uuid(),
+  family_id uuid not null references families(id) on delete cascade,
+  household_id uuid not null references households(id) on delete cascade,
+  joined_at timestamptz not null default now(),
+  unique (household_id) -- uma household só pode estar em uma família por vez
+);
+
+-- Todos os household_ids que compartilham família com o usuário atual
+-- (inclui o próprio — pode ser usada como OR extra em qualquer policy)
+create or replace function family_household_ids()
+returns setof uuid
+language sql stable
+security definer
+set search_path = public
+as $$
+  select fm2.household_id
+  from family_members fm1
+  join family_members fm2 on fm2.family_id = fm1.family_id
+  where fm1.household_id = current_household_id()
+$$;
+
+revoke execute on function family_household_ids() from public;
+revoke execute on function family_household_ids() from anon;
+grant execute on function family_household_ids() to authenticated;
+
+-- Todos os partnership_ids de que o usuário atual participa
+create or replace function my_partnership_ids()
+returns setof uuid
+language sql stable
+security definer
+set search_path = public
+as $$
+  select partnership_id from partnership_members where profile_id = auth.uid()
+$$;
+
+revoke execute on function my_partnership_ids() from public;
+revoke execute on function my_partnership_ids() from anon;
+grant execute on function my_partnership_ids() to authenticated;
+
 
 -- ----------------------------------------------------------------------------
 -- 3. ACCOUNTS (contas: corrente, poupança, cartão, carteira)
@@ -126,6 +186,26 @@ create table budgets (
 -- ----------------------------------------------------------------------------
 -- 8. GOALS (metas financeiras)
 -- ----------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------
+-- PARCERIA: objetivo financeiro compartilhado entre 2+ pessoas
+-- ----------------------------------------------------------------------------
+create table partnerships (
+  id uuid primary key default gen_random_uuid(),
+  created_by uuid not null references profiles(id) on delete cascade,
+  invite_code text not null unique default substring(md5(random()::text) from 1 for 8),
+  created_at timestamptz not null default now()
+);
+
+create table partnership_members (
+  id uuid primary key default gen_random_uuid(),
+  partnership_id uuid not null references partnerships(id) on delete cascade,
+  profile_id uuid not null references profiles(id) on delete cascade,
+  contribution_target numeric(14,2) not null default 0,
+  contributed_amount numeric(14,2) not null default 0,
+  joined_at timestamptz not null default now(),
+  unique (partnership_id, profile_id)
+);
+
 create table goals (
   id uuid primary key default gen_random_uuid(),
   household_id uuid not null references households(id) on delete cascade,
@@ -136,6 +216,7 @@ create table goals (
   color text default '#B08A42',
   photo_url text,
   linked_account_id uuid references accounts(id) on delete set null,
+  partnership_id uuid references partnerships(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
@@ -380,3 +461,126 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function handle_new_user();
+
+-- ============================================================================
+-- FASE 6 — RLS de Parceria e Família
+-- ============================================================================
+alter table partnerships enable row level security;
+alter table partnership_members enable row level security;
+alter table families enable row level security;
+alter table family_members enable row level security;
+
+create policy "select if member" on partnerships
+  for select using (id in (select my_partnership_ids()) or created_by = auth.uid());
+create policy "insert own" on partnerships
+  for insert with check (created_by = auth.uid());
+
+create policy "select if same partnership" on partnership_members
+  for select using (partnership_id in (select my_partnership_ids()));
+create policy "insert self as member" on partnership_members
+  for insert with check (profile_id = auth.uid());
+create policy "update own contribution" on partnership_members
+  for update using (profile_id = auth.uid());
+create policy "delete own membership" on partnership_members
+  for delete using (profile_id = auth.uid());
+
+create policy "select if household is member" on families
+  for select using (id in (select family_id from family_members where household_id = current_household_id()));
+create policy "insert any" on families
+  for insert with check (true);
+
+create policy "select if same family" on family_members
+  for select using (family_id in (select family_id from family_members where household_id = current_household_id()));
+create policy "insert own household" on family_members
+  for insert with check (household_id = current_household_id());
+create policy "delete own membership" on family_members
+  for delete using (household_id = current_household_id());
+
+-- Estende as tabelas existentes: visível/editável também se a household
+-- compartilha família com o usuário atual. Metas também aceitam o vínculo
+-- de parceria. Nenhuma policy antiga é removida sem substituição equivalente
+-- + a condição nova — é sempre um OR adicional.
+drop policy "select own household data" on accounts;
+drop policy "modify own household data" on accounts;
+create policy "select own household data" on accounts
+  for select using (household_id = current_household_id() or household_id in (select family_household_ids()));
+create policy "modify own household data" on accounts
+  for all using (household_id = current_household_id() or household_id in (select family_household_ids()))
+  with check (household_id = current_household_id() or household_id in (select family_household_ids()));
+
+drop policy "select own household data" on categories;
+drop policy "modify own household data" on categories;
+create policy "select own household data" on categories
+  for select using (household_id = current_household_id() or household_id in (select family_household_ids()));
+create policy "modify own household data" on categories
+  for all using (household_id = current_household_id() or household_id in (select family_household_ids()))
+  with check (household_id = current_household_id() or household_id in (select family_household_ids()));
+
+drop policy "select own household data" on transactions;
+drop policy "modify own household data" on transactions;
+create policy "select own household data" on transactions
+  for select using (household_id = current_household_id() or household_id in (select family_household_ids()));
+create policy "modify own household data" on transactions
+  for all using (household_id = current_household_id() or household_id in (select family_household_ids()))
+  with check (household_id = current_household_id() or household_id in (select family_household_ids()));
+
+drop policy "select own household data" on budgets;
+drop policy "modify own household data" on budgets;
+create policy "select own household data" on budgets
+  for select using (household_id = current_household_id() or household_id in (select family_household_ids()));
+create policy "modify own household data" on budgets
+  for all using (household_id = current_household_id() or household_id in (select family_household_ids()))
+  with check (household_id = current_household_id() or household_id in (select family_household_ids()));
+
+drop policy "select own household data" on bills;
+drop policy "modify own household data" on bills;
+create policy "select own household data" on bills
+  for select using (household_id = current_household_id() or household_id in (select family_household_ids()));
+create policy "modify own household data" on bills
+  for all using (household_id = current_household_id() or household_id in (select family_household_ids()))
+  with check (household_id = current_household_id() or household_id in (select family_household_ids()));
+
+drop policy "select own household data" on recurring_rules;
+drop policy "modify own household data" on recurring_rules;
+create policy "select own household data" on recurring_rules
+  for select using (household_id = current_household_id() or household_id in (select family_household_ids()));
+create policy "modify own household data" on recurring_rules
+  for all using (household_id = current_household_id() or household_id in (select family_household_ids()))
+  with check (household_id = current_household_id() or household_id in (select family_household_ids()));
+
+drop policy "select own household data" on investments;
+drop policy "modify own household data" on investments;
+create policy "select own household data" on investments
+  for select using (household_id = current_household_id() or household_id in (select family_household_ids()));
+create policy "modify own household data" on investments
+  for all using (household_id = current_household_id() or household_id in (select family_household_ids()))
+  with check (household_id = current_household_id() or household_id in (select family_household_ids()));
+
+drop policy "select own household data" on investment_operations;
+drop policy "modify own household data" on investment_operations;
+create policy "select own household data" on investment_operations
+  for select using (household_id = current_household_id() or household_id in (select family_household_ids()));
+create policy "modify own household data" on investment_operations
+  for all using (household_id = current_household_id() or household_id in (select family_household_ids()))
+  with check (household_id = current_household_id() or household_id in (select family_household_ids()));
+
+drop policy "select own household data" on goals;
+drop policy "modify own household data" on goals;
+create policy "select own household data" on goals
+  for select using (
+    household_id = current_household_id()
+    or household_id in (select family_household_ids())
+    or partnership_id in (select my_partnership_ids())
+  );
+create policy "modify own household data" on goals
+  for all using (
+    household_id = current_household_id()
+    or household_id in (select family_household_ids())
+    or partnership_id in (select my_partnership_ids())
+  )
+  with check (
+    household_id = current_household_id()
+    or household_id in (select family_household_ids())
+    or partnership_id in (select my_partnership_ids())
+  );
+
