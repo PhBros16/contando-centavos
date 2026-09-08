@@ -16,6 +16,7 @@ import { DueSoonBanner } from "@/components/DueSoonBanner";
 import { MonthComparison } from "@/components/MonthComparison";
 import { NetWorthBand } from "@/components/NetWorthBand";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { InstallAppBanner } from "@/components/InstallAppBanner";
 import { projectBalance, projectBudgetOverrun } from "@/lib/forecast";
 import { processDueRecurringRules } from "@/lib/processRecurring";
 import { compareMonthlySpend } from "@/lib/monthComparison";
@@ -218,6 +219,7 @@ export default async function DashboardPage({
         <NetWorthBand liquidBalance={currentBalance} investmentsValue={investmentsValue} />
 
         <div className="mt-6">
+          <InstallAppBanner />
           {profile && !(profile as Profile).onboarding_dismissed && (
             <OnboardingChecklist
               profileId={(profile as Profile).id}

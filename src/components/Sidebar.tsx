@@ -173,7 +173,7 @@ export function Sidebar({ activeLabel }: { activeLabel?: string }) {
           <Link
             key={item.label}
             href={item.href}
-            className={`flex-1 flex flex-col items-center gap-1 py-1 text-[10px] ${
+            className={`flex-1 flex flex-col items-center gap-1 py-1 text-[10px] transition-all duration-100 active:scale-90 active:opacity-60 ${
               isActive(item) ? "text-brand" : "text-ink-faint"
             }`}
           >
@@ -185,7 +185,7 @@ export function Sidebar({ activeLabel }: { activeLabel?: string }) {
         ))}
         <button
           onClick={() => setMoreOpen(true)}
-          className={`flex-1 flex flex-col items-center gap-1 py-1 text-[10px] ${
+          className={`flex-1 flex flex-col items-center gap-1 py-1 text-[10px] transition-all duration-100 active:scale-90 active:opacity-60 ${
             moreIsActive ? "text-brand" : "text-ink-faint"
           }`}
         >
@@ -243,7 +243,7 @@ function MoreMenu({
                     key={label}
                     href={item.href}
                     onClick={onClose}
-                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm border ${
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm border transition-transform active:scale-95 ${
                       active ? "border-brand text-brand bg-brand-soft/10" : "border-hairline text-ink-soft"
                     }`}
                   >
@@ -289,7 +289,7 @@ function NavItem({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-[14.5px] select-none ${
+      className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-[14.5px] select-none transition-transform active:scale-[0.97] ${
         active ? "bg-brand-soft/10 text-brand font-semibold" : "text-ink-soft hover:text-ink"
       }`}
     >

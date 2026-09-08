@@ -11,6 +11,14 @@ export function TransactionList({ transactions }: { transactions: Transaction[] 
           Ver todas
         </Link>
       </div>
+      {transactions.length === 0 && (
+        <Link
+          href="/dashboard/transactions"
+          className="flex items-center justify-between gap-3 rounded-card border border-dashed border-hairline px-4 py-3.5 text-sm text-ink-soft hover:text-ink transition-colors"
+        >
+          Nenhuma transação ainda — lance a primeira ali em cima
+        </Link>
+      )}
       <div>
         {transactions.map((tx) => {
           const positive = tx.amount > 0;

@@ -100,6 +100,10 @@ const SECTIONS: { title: string; body: string }[] = [
     body: "Se você já tem um histórico em planilha, importe de uma vez em vez de digitar transação por transação. O arquivo precisa ter colunas de data, descrição e valor.",
   },
   {
+    title: "Instalar na tela de início",
+    body: "No iPhone: toque no ícone de compartilhar (o quadrado com a seta pra cima) na barra do Safari, depois em 'Adicionar à Tela de Início'. No Android: toque no menu (⋮) do Chrome e escolha 'Adicionar à tela inicial' ou 'Instalar app'. Depois disso, o Contando Centavos abre como um app de verdade, com ícone próprio e sem a barra do navegador.",
+  },
+  {
     title: "Reconhecimento e privacidade",
     body: "Depois do primeiro login, o app lembra quem você é nesse navegador e só pede a senha nas próximas vezes. Esqueceu a senha? Tem recuperação por e-mail na tela de login. Seus dados são protegidos por Row Level Security no banco — ninguém além de você acessa suas informações, nem em tese.",
   },
