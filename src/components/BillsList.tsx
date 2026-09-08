@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Bill } from "@/lib/types";
@@ -23,7 +24,12 @@ export function BillsList({ bills }: { bills: Bill[] }) {
         <span className="text-xs text-ink-faint">{bills.filter((b) => b.status !== "pago").length} pendentes</span>
       </div>
       {sorted.length === 0 && (
-        <p className="text-sm text-ink-faint">Nenhuma despesa cadastrada ainda.</p>
+        <Link
+          href="/dashboard/bills/new"
+          className="flex items-center justify-between gap-3 rounded-card border border-dashed border-hairline px-4 py-3.5 text-sm text-ink-soft hover:text-ink transition-colors"
+        >
+          Nenhuma despesa cadastrada ainda.
+        </Link>
       )}
       <div>
         {sorted.map((bill) => {
