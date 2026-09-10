@@ -84,10 +84,10 @@ export default async function InvestmentsPage() {
           Voltar
         </Link>
 
-        <div className="flex justify-between items-start mb-8 flex-wrap gap-3">
+        <div className="flex justify-between items-start mb-3 flex-wrap gap-3">
           <div>
             <h1 className="font-display text-2xl font-medium mb-1">Investimentos</h1>
-            <p className="text-sm text-ink-soft">Seu portfólio consolidado.</p>
+            <p className="text-sm text-ink-soft">Onde estão suas aplicações, tudo somado.</p>
           </div>
           <div className="flex gap-2">
             <Link
@@ -104,6 +104,10 @@ export default async function InvestmentsPage() {
             </Link>
           </div>
         </div>
+
+        <p className="text-xs text-ink-faint mb-8">
+          Não investe ainda? Sem problema — essa parte é totalmente opcional, pode ignorar.
+        </p>
 
         {investments && investments.length > 0 && (
           <div className="flex gap-8 mb-9 pb-7 border-b border-hairline flex-wrap">

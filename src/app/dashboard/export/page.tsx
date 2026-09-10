@@ -50,11 +50,11 @@ export default function ExportPage() {
         </div>
 
         <div className="rounded-card border border-hairline p-5 mt-6">
-          <h3 className="text-[15.5px] font-bold mb-1">Backup completo</h3>
+          <h3 className="text-[15.5px] font-bold mb-1">Cópia de segurança completa</h3>
           <p className="text-sm text-ink-soft mb-5">
-            Todos os seus dados (contas, categorias, transações, orçamentos, metas, despesas,
-            recorrências, investimentos) num único arquivo JSON — pra guardar como cópia de
-            segurança ou levar pra outro lugar.
+            Baixa um arquivo com absolutamente tudo que você já cadastrou — bom pra guardar de
+            reserva ou levar pra outro lugar. É um arquivo técnico (formato JSON), não é pra abrir
+            e ler diretamente, mas guarda tudo.
           </p>
           <BackupExportClient />
         </div>

@@ -49,7 +49,10 @@ export default async function TransactionsPage({
 
         <h1 className="font-display text-2xl font-medium mb-1">Transações</h1>
         <div className="flex justify-between items-baseline mb-6">
-          <p className="text-sm text-ink-soft">Histórico completo, com filtro e edição.</p>
+          <p className="text-sm text-ink-soft">
+            Busque, filtre, edite ou apague qualquer lançamento. (Quer ver por período, tipo um
+            extrato de banco? Veja "Extrato" no menu.)
+          </p>
           <Link href="/dashboard/transactions/installment/new" className="text-sm font-semibold text-brand hover:underline">
             + Compra parcelada
           </Link>

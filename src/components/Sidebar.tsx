@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { label: "Extrato", icon: "calendar", href: "/dashboard/statement", real: true },
   { label: "Contas", icon: "wallet", href: "/dashboard/accounts", real: true },
   { label: "Categorias", icon: "tag", href: "/dashboard/categories", real: true },
-  { label: "Despesas", icon: "bill", href: "/dashboard/bills/new", real: true },
+  { label: "Contas a pagar", icon: "bill", href: "/dashboard/bills/new", real: true },
   { label: "Orçamento", icon: "budget", href: "/dashboard/budgets/new", real: true },
   { label: "Metas", icon: "goal", href: "/dashboard/goals/new", real: true },
   { label: "Investimentos", icon: "trend", href: "/dashboard/investments", real: true },
@@ -27,7 +27,7 @@ const NAV_ITEMS = [
 const MOBILE_PRIMARY_LABELS = ["Visão geral", "Transações", "Extrato", "Contas"];
 
 const MOBILE_MORE_GROUPS: { title: string; labels: string[] }[] = [
-  { title: "Lançamentos", labels: ["Categorias", "Despesas"] },
+  { title: "Lançamentos", labels: ["Categorias", "Contas a pagar"] },
   { title: "Planejamento", labels: ["Orçamento", "Metas", "Recorrências"] },
   { title: "Investimentos", labels: ["Investimentos"] },
   { title: "Ferramentas", labels: ["Importar", "Simulador", "Exportar", "Guia"] },

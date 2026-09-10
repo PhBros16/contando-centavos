@@ -17,6 +17,7 @@ import { MonthComparison } from "@/components/MonthComparison";
 import { NetWorthBand } from "@/components/NetWorthBand";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { InstallAppBanner } from "@/components/InstallAppBanner";
+import { AdvancedSection } from "@/components/AdvancedSection";
 import { projectBalance, projectBudgetOverrun } from "@/lib/forecast";
 import { processDueRecurringRules } from "@/lib/processRecurring";
 import { compareMonthlySpend } from "@/lib/monthComparison";
@@ -216,8 +217,6 @@ export default async function DashboardPage({
           sparklinePoints="M2,30 C 20,26 30,32 46,24 C 62,16 70,22 88,18 C 106,14 116,10 132,12 C 150,14 160,6 176,8 C 194,10 204,4 218,4"
         />
 
-        <NetWorthBand liquidBalance={currentBalance} investmentsValue={investmentsValue} />
-
         <div className="mt-6">
           <InstallAppBanner />
           {profile && !(profile as Profile).onboarding_dismissed && (
@@ -249,17 +248,29 @@ export default async function DashboardPage({
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-10 mt-8">
           <div className="flex flex-col gap-10">
-            <CashFlowChart data={monthlyFlow} months={chartMonths} />
             <TransactionList transactions={(transactions ?? []) as Transaction[]} />
           </div>
 
           <div className="flex flex-col gap-10">
             <BillsList bills={(bills ?? []) as Bill[]} />
             <BudgetList budgets={budgetsWithUsage} />
-            <MonthComparison rows={monthComparisonRows} />
             <GoalList goals={(goals ?? []) as Goal[]} accountBalances={accountBalances} />
-            <ForecastCard projectedBalance={projectedBalance} alertMessage={alertMessage} />
           </div>
+        </div>
+
+        <div className="mt-8 pt-2 border-t border-hairline">
+          <AdvancedSection>
+            <NetWorthBand liquidBalance={currentBalance} investmentsValue={investmentsValue} />
+            <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-10">
+              <div className="flex flex-col gap-10">
+                <CashFlowChart data={monthlyFlow} months={chartMonths} />
+              </div>
+              <div className="flex flex-col gap-10">
+                <MonthComparison rows={monthComparisonRows} />
+                <ForecastCard projectedBalance={projectedBalance} alertMessage={alertMessage} />
+              </div>
+            </div>
+          </AdvancedSection>
         </div>
       </main>
     </div>

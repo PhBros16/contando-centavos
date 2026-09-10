@@ -71,9 +71,10 @@ export default function NewBillPage() {
           Voltar
         </Link>
 
-        <h1 className="font-display text-2xl font-medium mb-1">Nova despesa</h1>
+        <h1 className="font-display text-2xl font-medium mb-1">Nova conta a pagar</h1>
         <p className="text-sm text-ink-soft mb-8">
-          Para contas com vencimento — fatura de cartão, boleto, assinatura pendente.
+          Pra algo com data de vencimento — fatura de cartão, boleto, assinatura pendente.
+          Diferente de uma transação comum, aqui você marca como pago depois.
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">

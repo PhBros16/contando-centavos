@@ -70,7 +70,10 @@ export default async function StatementPage({
         </Link>
 
         <h1 className="font-display text-2xl font-medium mb-1">Extrato</h1>
-        <p className="text-sm text-ink-soft mb-6">Todas as entradas e saídas, do jeito que você quiser ver.</p>
+        <p className="text-sm text-ink-soft mb-6">
+          As mesmas transações organizadas por período. (Procurando algo específico? Veja
+          "Transações" no menu.)
+        </p>
 
         <div className="flex rounded-lg overflow-hidden border border-hairline w-fit mb-5">
           {PERIOD_LABELS.map((p) => (

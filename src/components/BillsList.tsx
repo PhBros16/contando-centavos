@@ -20,7 +20,7 @@ export function BillsList({ bills }: { bills: Bill[] }) {
   return (
     <div>
       <div className="flex justify-between items-baseline mb-4">
-        <h3 className="text-[15.5px] font-bold">Despesas e compromissos</h3>
+        <h3 className="text-[15.5px] font-bold">Contas a pagar</h3>
         <span className="text-xs text-ink-faint">{bills.filter((b) => b.status !== "pago").length} pendentes</span>
       </div>
       {sorted.length === 0 && (
