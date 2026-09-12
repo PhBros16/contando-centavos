@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -144,6 +144,25 @@ const ICONS: Record<string, React.ReactNode> = {
 export function Sidebar({ activeLabel }: { activeLabel?: string }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
+
+  // Sem isso, no iOS o scroll da página de trás continua rolando visivelmente
+  // por baixo do overlay escurecido enquanto o sheet "Todas as funções" está aberto.
+  useEffect(() => {
+    if (!moreOpen) return;
+    const scrollY = window.scrollY;
+    const { body } = document;
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    return () => {
+      body.style.position = "";
+      body.style.top = "";
+      body.style.left = "";
+      body.style.right = "";
+      window.scrollTo(0, scrollY);
+    };
+  }, [moreOpen]);
 
   const isActive = (item: (typeof NAV_ITEMS)[number]) =>
     item.real && (activeLabel ? item.label === activeLabel : pathname === item.href);

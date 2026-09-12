@@ -448,6 +448,7 @@ begin
     (new_household_id, 'Assinaturas', 'despesa', '#3E7C7C', '📱'),
     (new_household_id, 'Educação', 'despesa', '#2F5D50', '🎓'),
     (new_household_id, 'Compras', 'despesa', '#B08A42', '🛍️'),
+    (new_household_id, 'Fatura', 'despesa', '#8B3A48', '💳'),
     (new_household_id, 'Outros', 'despesa', '#7A7A7A', '📦'),
     (new_household_id, 'Salário', 'receita', '#2F5D50', '💰'),
     (new_household_id, 'Freelance', 'receita', '#3E7C7C', '💻'),

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
 import { EditableTransactionRow } from "@/components/EditableTransactionRow";
-import type { Account, Category, Transaction } from "@/lib/types";
+import { QuickAddTransaction } from "@/components/QuickAddTransaction";
+import type { Account, Category, Profile, Transaction } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +14,14 @@ export default async function TransactionsPage({
 }) {
   const supabase = createClient();
 
-  const [{ data: accounts }, { data: categories }] = await Promise.all([
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const [{ data: accounts }, { data: categories }, { data: profile }] = await Promise.all([
     supabase.from("accounts").select("*").order("name"),
     supabase.from("categories").select("*").order("kind").order("name"),
+    supabase.from("profiles").select("*").eq("id", user!.id).single(),
   ]);
 
   let query = supabase
@@ -58,6 +64,16 @@ export default async function TransactionsPage({
           </Link>
         </div>
 
+        {accounts && accounts.length > 0 && profile ? (
+          <div className="mb-7">
+            <QuickAddTransaction
+              accountId={accounts[0].id}
+              householdId={(profile as Profile).household_id}
+              topCategories={(categories ?? []).slice(0, 6) as Category[]}
+            />
+          </div>
+        ) : null}
+
         <form method="get" className="flex flex-wrap gap-2.5 mb-7">
           <input
             type="text"
@@ -90,18 +106,24 @@ export default async function TransactionsPage({
               </option>
             ))}
           </select>
-          <input
-            type="date"
-            name="from"
-            defaultValue={searchParams.from}
-            className="rounded-lg border border-hairline bg-paper-raised px-2.5 py-2 text-sm outline-none focus:border-brand transition-colors"
-          />
-          <input
-            type="date"
-            name="to"
-            defaultValue={searchParams.to}
-            className="rounded-lg border border-hairline bg-paper-raised px-2.5 py-2 text-sm outline-none focus:border-brand transition-colors"
-          />
+          <label className="flex items-center gap-1.5 text-xs text-ink-faint">
+            De
+            <input
+              type="date"
+              name="from"
+              defaultValue={searchParams.from}
+              className="rounded-lg border border-hairline bg-paper-raised px-2.5 py-2 text-sm text-ink outline-none focus:border-brand transition-colors"
+            />
+          </label>
+          <label className="flex items-center gap-1.5 text-xs text-ink-faint">
+            Até
+            <input
+              type="date"
+              name="to"
+              defaultValue={searchParams.to}
+              className="rounded-lg border border-hairline bg-paper-raised px-2.5 py-2 text-sm text-ink outline-none focus:border-brand transition-colors"
+            />
+          </label>
           <button
             type="submit"
             className="px-4 py-2 rounded-lg bg-ink text-paper text-sm font-semibold hover:opacity-85 transition-opacity"

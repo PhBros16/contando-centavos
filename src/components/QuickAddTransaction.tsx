@@ -27,6 +27,7 @@ export function QuickAddTransaction({
   const [saving, setSaving] = useState(false);
   const [lastCreatedId, setLastCreatedId] = useState<string | null>(null);
   const [lastReceiptPath, setLastReceiptPath] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   function selectCategory(cat: Category) {
     if (categoryId === cat.id) {
@@ -44,6 +45,7 @@ export function QuickAddTransaction({
 
     setSaving(true);
     setLastCreatedId(null);
+    setErrorMsg(null);
 
     const numericTotal = parseFloat(amount.replace(",", "."));
     const people = showSplit ? Math.max(parseInt(splitCount) || 1, 1) : 1;
@@ -53,6 +55,7 @@ export function QuickAddTransaction({
     const { data, error } = await supabase
       .from("transactions")
       .insert({
+        household_id: householdId,
         account_id: accountId,
         category_id: categoryId,
         description: description.trim() || (kind === "entrou" ? "Entrada rápida" : "Saída rápida"),
@@ -74,6 +77,8 @@ export function QuickAddTransaction({
       setLastCreatedId(data.id);
       setLastReceiptPath(null);
       router.refresh();
+    } else if (error) {
+      setErrorMsg("Não deu pra salvar: " + error.message);
     }
   }
 
@@ -122,23 +127,33 @@ export function QuickAddTransaction({
           </button>
         </div>
 
-        <input
-          type="text"
-          inputMode="decimal"
-          placeholder={showSplit ? "Valor total" : "R$ 0,00"}
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="w-28 rounded-lg border border-hairline bg-paper px-3 py-1.5 text-sm font-display outline-none focus:border-brand transition-colors"
-          required
-        />
+        <label className="flex flex-col gap-1 shrink-0">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-faint pl-0.5">
+            Valor
+          </span>
+          <input
+            type="text"
+            inputMode="decimal"
+            placeholder={showSplit ? "Valor total" : "R$ 0,00"}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="w-28 rounded-lg border border-hairline bg-paper px-3 py-1.5 text-sm font-display outline-none focus:border-brand transition-colors"
+            required
+          />
+        </label>
 
-        <input
-          type="text"
-          placeholder="Descrição (opcional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="flex-1 min-w-[120px] rounded-lg border border-hairline bg-paper px-3 py-1.5 text-sm outline-none focus:border-brand transition-colors"
-        />
+        <label className="flex flex-col gap-1 flex-1 min-w-[120px]">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-faint pl-0.5">
+            Descrição (opcional)
+          </span>
+          <input
+            type="text"
+            placeholder="Ex: Mercado, Uber, Tio…"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full rounded-lg border border-hairline bg-paper px-3 py-1.5 text-sm outline-none focus:border-brand transition-colors"
+          />
+        </label>
 
         <button
           type="button"
@@ -180,6 +195,10 @@ export function QuickAddTransaction({
             { style: "currency", currency: "BRL" }
           )}
         </p>
+      )}
+
+      {errorMsg && (
+        <p className="text-xs text-wine mt-2 pt-2 border-t border-hairline">{errorMsg}</p>
       )}
 
       {lastCreatedId && (
