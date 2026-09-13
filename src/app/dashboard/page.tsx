@@ -240,6 +240,7 @@ export default async function DashboardPage({
               accountId={accounts[0].id}
               householdId={(profile as Profile).household_id}
               topCategories={topCategories}
+              pendingBills={(bills ?? []).filter((b) => (b as Bill).status !== "pago") as Bill[]}
             />
           ) : (
             <Link

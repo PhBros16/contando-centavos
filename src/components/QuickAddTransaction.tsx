@@ -3,17 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { Category } from "@/lib/types";
+import type { Category, Bill } from "@/lib/types";
 import { ReceiptAttach } from "@/components/ReceiptAttach";
+import { formatCurrency } from "@/lib/format";
 
 export function QuickAddTransaction({
   accountId,
   householdId,
   topCategories,
+  pendingBills = [],
 }: {
   accountId: string | null;
   householdId: string;
   topCategories: Category[];
+  pendingBills?: Bill[];
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -28,6 +31,7 @@ export function QuickAddTransaction({
   const [lastCreatedId, setLastCreatedId] = useState<string | null>(null);
   const [lastReceiptPath, setLastReceiptPath] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [linkedBillId, setLinkedBillId] = useState<string | null>(null);
 
   function selectCategory(cat: Category) {
     if (categoryId === cat.id) {
@@ -37,6 +41,18 @@ export function QuickAddTransaction({
     setCategoryId(cat.id);
     setKind(cat.kind === "receita" ? "entrou" : "saiu");
     if (!description) setDescription(cat.name);
+  }
+
+  function toggleBillLink(bill: Bill) {
+    if (linkedBillId === bill.id) {
+      setLinkedBillId(null);
+      return;
+    }
+    setLinkedBillId(bill.id);
+    setKind("saiu");
+    setAmount(String(bill.amount));
+    setDescription(`Pagamento: ${bill.description}`);
+    if (bill.category_id) setCategoryId(bill.category_id);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -67,6 +83,16 @@ export function QuickAddTransaction({
       .select()
       .single();
 
+    if (!error && data && linkedBillId) {
+      // Fecha o ciclo: essa transação está pagando uma conta pendente,
+      // então marca ela como paga e guarda o vínculo, senão o "atrasado"
+      // nunca sai mesmo com o pagamento lançado.
+      await supabase
+        .from("bills")
+        .update({ status: "pago", transaction_id: data.id })
+        .eq("id", linkedBillId);
+    }
+
     setSaving(false);
 
     if (!error && data) {
@@ -74,6 +100,7 @@ export function QuickAddTransaction({
       setDescription("");
       setCategoryId(null);
       setShowSplit(false);
+      setLinkedBillId(null);
       setLastCreatedId(data.id);
       setLastReceiptPath(null);
       router.refresh();
@@ -84,6 +111,31 @@ export function QuickAddTransaction({
 
   return (
     <div className="rounded-card border border-hairline bg-paper-raised px-4 py-3.5">
+      {pendingBills.length > 0 && (
+        <div className="mb-3 pb-3 border-b border-hairline">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-faint pl-0.5">
+            Isso é o pagamento de uma conta pendente?
+          </span>
+          <div className="flex gap-1.5 overflow-x-auto mt-1.5 -mx-0.5 px-0.5">
+            {pendingBills.map((bill) => (
+              <button
+                key={bill.id}
+                type="button"
+                onClick={() => toggleBillLink(bill)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 border transition-colors"
+                style={
+                  linkedBillId === bill.id
+                    ? { background: "var(--wine)", color: "#fff", borderColor: "var(--wine)" }
+                    : { borderColor: "rgb(var(--hairline) / 0.3)" }
+                }
+              >
+                💳 {bill.description} · {formatCurrency(bill.amount)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {topCategories.length > 0 && (
         <div className="flex gap-1.5 overflow-x-auto pb-3 mb-3 border-b border-hairline -mx-0.5 px-0.5">
           {topCategories.map((cat) => (

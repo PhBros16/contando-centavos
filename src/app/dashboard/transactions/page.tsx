@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
 import { EditableTransactionRow } from "@/components/EditableTransactionRow";
 import { QuickAddTransaction } from "@/components/QuickAddTransaction";
-import type { Account, Category, Profile, Transaction } from "@/lib/types";
+import type { Account, Bill, Category, Profile, Transaction } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +18,11 @@ export default async function TransactionsPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: accounts }, { data: categories }, { data: profile }] = await Promise.all([
+  const [{ data: accounts }, { data: categories }, { data: profile }, { data: pendingBills }] = await Promise.all([
     supabase.from("accounts").select("*").order("name"),
     supabase.from("categories").select("*").order("kind").order("name"),
     supabase.from("profiles").select("*").eq("id", user!.id).single(),
+    supabase.from("bills").select("*").neq("status", "pago").order("due_date"),
   ]);
 
   let query = supabase
@@ -70,6 +71,7 @@ export default async function TransactionsPage({
               accountId={accounts[0].id}
               householdId={(profile as Profile).household_id}
               topCategories={(categories ?? []).slice(0, 6) as Category[]}
+              pendingBills={(pendingBills ?? []) as Bill[]}
             />
           </div>
         ) : null}
