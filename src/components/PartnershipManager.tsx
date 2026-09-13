@@ -29,20 +29,24 @@ export function PartnershipManager({
 
   async function handleCreatePartnership() {
     setSaving(true);
-    const { data: partnership } = await supabase
+    const { data: partnership, error: createError } = await supabase
       .from("partnerships")
       .insert({ created_by: currentUserId })
       .select()
       .single();
 
-    if (partnership) {
-      await supabase.from("partnership_members").insert({
-        partnership_id: partnership.id,
-        profile_id: currentUserId,
-        contribution_target: parseFloat(myTarget.replace(",", ".")) || 0,
-      });
-      await supabase.from("goals").update({ partnership_id: partnership.id }).eq("id", goal.id);
+    if (createError || !partnership) {
+      setSaving(false);
+      alert("Não deu pra criar a parceria: " + (createError?.message ?? "tenta de novo"));
+      return;
     }
+
+    await supabase.from("partnership_members").insert({
+      partnership_id: partnership.id,
+      profile_id: currentUserId,
+      contribution_target: parseFloat(myTarget.replace(",", ".")) || 0,
+    });
+    await supabase.from("goals").update({ partnership_id: partnership.id }).eq("id", goal.id);
 
     setSaving(false);
     router.refresh();
@@ -53,10 +57,16 @@ export function PartnershipManager({
     setSaving(true);
     const addAmount = parseFloat(contributionInput.replace(",", ".")) || 0;
 
-    await supabase
+    const { error: contribError } = await supabase
       .from("partnership_members")
       .update({ contributed_amount: myMembership.contributed_amount + addAmount })
       .eq("id", myMembership.id);
+
+    if (contribError) {
+      setSaving(false);
+      alert("Não deu pra registrar o aporte: " + contribError.message);
+      return;
+    }
 
     // Mantém o valor total da meta em sincronia com a soma de todos os aportes
     const newTotal = members.reduce(

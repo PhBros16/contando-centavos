@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Papa from "papaparse";
 import { createClient } from "@/lib/supabase/client";
+import { Sidebar } from "@/components/Sidebar";
 import type { Account } from "@/lib/types";
 
 type ParsedRow = { data: string; descricao: string; valor: string };
@@ -35,6 +36,7 @@ export default function ImportPage() {
   const [fileError, setFileError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<{ imported: number; skipped: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     supabase
@@ -108,7 +110,13 @@ export default function ImportPage() {
     }
 
     if (toInsert.length > 0) {
-      await supabase.from("transactions").insert(toInsert);
+      const { error } = await supabase.from("transactions").insert(toInsert);
+      if (error) {
+        setSaving(false);
+        setResult(null);
+        setError("Não deu pra importar: " + error.message);
+        return;
+      }
     }
 
     setSaving(false);
@@ -116,8 +124,9 @@ export default function ImportPage() {
   }
 
   return (
-    <main className="min-h-screen bg-paper px-6 py-10 flex justify-center">
-      <div className="w-full max-w-lg">
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <main className="flex-1 min-w-0 px-5 md:px-11 pt-7 pb-24 md:pb-14 max-w-lg">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-1.5 text-sm text-ink-soft hover:text-ink mb-8 transition-colors"
@@ -202,6 +211,8 @@ export default function ImportPage() {
               </div>
             )}
 
+            {error && <p className="text-sm text-wine">{error}</p>}
+
             {result && (
               <div className="rounded-card border border-hairline p-4 text-sm">
                 <p className="font-semibold mb-1">
@@ -218,7 +229,7 @@ export default function ImportPage() {
             )}
           </div>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

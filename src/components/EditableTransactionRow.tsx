@@ -33,7 +33,7 @@ export function EditableTransactionRow({
   async function handleSave() {
     setSaving(true);
     const numericAmount = parseFloat(amount.replace(",", "."));
-    await supabase
+    const { error } = await supabase
       .from("transactions")
       .update({
         description,
@@ -44,6 +44,10 @@ export function EditableTransactionRow({
       })
       .eq("id", transaction.id);
     setSaving(false);
+    if (error) {
+      alert("Não deu pra salvar: " + error.message);
+      return;
+    }
     setEditing(false);
     router.refresh();
   }

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { Sidebar } from "@/components/Sidebar";
 import type { Account } from "@/lib/types";
 
 const SUGGESTED_COLORS = ["#B08A42", "#2F5D50", "#8B3A48", "#4A6FA5", "#7C6E92", "#3E7C7C"];
@@ -97,8 +98,9 @@ export default function NewGoalPage() {
   }
 
   return (
-    <main className="min-h-screen bg-paper px-6 py-10 flex justify-center">
-      <div className="w-full max-w-lg">
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <main className="flex-1 min-w-0 px-5 md:px-11 pt-7 pb-24 md:pb-14 max-w-lg">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-1.5 text-sm text-ink-soft hover:text-ink mb-8 transition-colors"
@@ -236,7 +238,7 @@ export default function NewGoalPage() {
             {saving ? "Criando…" : "Criar meta"}
           </button>
         </form>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

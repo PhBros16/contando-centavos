@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { Sidebar } from "@/components/Sidebar";
 import type { Category } from "@/lib/types";
 
 export default function NewBillPage() {
@@ -69,8 +70,9 @@ export default function NewBillPage() {
   }
 
   return (
-    <main className="min-h-screen bg-paper px-6 py-10 flex justify-center">
-      <div className="w-full max-w-lg">
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <main className="flex-1 min-w-0 px-5 md:px-11 pt-7 pb-24 md:pb-14 max-w-lg">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-1.5 text-sm text-ink-soft hover:text-ink mb-8 transition-colors"
@@ -161,7 +163,7 @@ export default function NewBillPage() {
             {saving ? "Salvando…" : "Adicionar despesa"}
           </button>
         </form>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

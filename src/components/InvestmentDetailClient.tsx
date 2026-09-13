@@ -66,10 +66,14 @@ function MarketAssetDetail({
 
   async function savePrice() {
     const price = parseFloat(currentPrice.replace(",", "."));
-    await supabase
+    const { error } = await supabase
       .from("investments")
       .update({ details: { ...details, current_price: price }, current_value: position.currentValue })
       .eq("id", investment.id);
+    if (error) {
+      alert("Não deu pra atualizar o preço: " + error.message);
+      return;
+    }
     setEditingPrice(false);
     router.refresh();
   }
@@ -256,7 +260,7 @@ function StaticAssetDetail({ investment }: { investment: Investment }) {
       ? { ...details, rate_pct: parseFloat(ratePct.replace(",", ".")) || 0 }
       : { ...details, rate_pct: parseFloat(ratePct.replace(",", ".")) || 0 };
 
-    await supabase
+    const { error } = await supabase
       .from("investments")
       .update({
         invested_amount: amount,
@@ -266,6 +270,12 @@ function StaticAssetDetail({ investment }: { investment: Investment }) {
       .eq("id", investment.id);
 
     setSaving(false);
+
+    if (error) {
+      alert("Não deu pra salvar: " + error.message);
+      return;
+    }
+
     router.refresh();
   }
 

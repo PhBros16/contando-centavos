@@ -26,7 +26,7 @@ export function AccountCard({ account, balance }: { account: Account; balance: n
 
   async function handleSave() {
     setSaving(true);
-    await supabase
+    const { error } = await supabase
       .from("accounts")
       .update({
         name: name.trim() || account.name,
@@ -34,6 +34,10 @@ export function AccountCard({ account, balance }: { account: Account; balance: n
       })
       .eq("id", account.id);
     setSaving(false);
+    if (error) {
+      alert("Não deu pra salvar: " + error.message);
+      return;
+    }
     setEditing(false);
     router.refresh();
   }

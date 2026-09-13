@@ -37,14 +37,24 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    if (!user) {
+      setSaving(false);
+      alert("Sua sessão expirou. Recarregue a página e faça login de novo.");
+      return;
+    }
     const { data: profile } = await supabase
       .from("profiles")
       .select("household_id")
-      .eq("id", user!.id)
+      .eq("id", user.id)
       .single();
+    if (!profile) {
+      setSaving(false);
+      alert("Não achamos seu perfil. Recarregue a página e tente de novo.");
+      return;
+    }
 
-    await supabase.from("categories").insert({
-      household_id: profile!.household_id,
+    const { error } = await supabase.from("categories").insert({
+      household_id: profile.household_id,
       name: name.trim(),
       kind,
       color,
@@ -53,11 +63,21 @@ export function CategoryManager({ initialCategories }: { initialCategories: Cate
 
     setName("");
     setSaving(false);
+
+    if (error) {
+      alert("Não deu pra criar a categoria: " + error.message);
+      return;
+    }
+
     router.refresh();
   }
 
   async function handleDelete(id: string) {
-    await supabase.from("categories").delete().eq("id", id);
+    const { error } = await supabase.from("categories").delete().eq("id", id);
+    if (error) {
+      alert("Não deu pra excluir: " + error.message);
+      return;
+    }
     router.refresh();
   }
 

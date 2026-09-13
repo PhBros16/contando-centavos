@@ -17,18 +17,28 @@ export function JoinFamilyClient({ familyId }: { familyId: string }) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    if (!user) {
+      setSaving(false);
+      setError("Sua sessão expirou. Recarregue a página e faça login de novo.");
+      return;
+    }
     const { data: profile } = await supabase
       .from("profiles")
       .select("household_id")
-      .eq("id", user!.id)
+      .eq("id", user.id)
       .single();
+    if (!profile) {
+      setSaving(false);
+      setError("Não achamos seu perfil. Recarregue a página e tente de novo.");
+      return;
+    }
 
-    const { error } = await supabase
+    const { error: joinError } = await supabase
       .from("family_members")
-      .insert({ family_id: familyId, household_id: profile!.household_id });
+      .insert({ family_id: familyId, household_id: profile.household_id });
 
     setSaving(false);
-    if (error) setError(error.message);
+    if (joinError) setError(joinError.message);
     else router.push("/dashboard/family");
   }
 

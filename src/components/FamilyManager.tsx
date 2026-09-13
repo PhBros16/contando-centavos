@@ -40,17 +40,33 @@ export function FamilyManager({
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    if (!user) {
+      setSaving(false);
+      setError("Sua sessão expirou. Recarregue a página e faça login de novo.");
+      return;
+    }
     const { data: profile } = await supabase
       .from("profiles")
       .select("household_id")
-      .eq("id", user!.id)
+      .eq("id", user.id)
       .single();
+    if (!profile) {
+      setSaving(false);
+      setError("Não achamos seu perfil. Recarregue a página e tente de novo.");
+      return;
+    }
 
-    await supabase
+    const { error: memberError } = await supabase
       .from("family_members")
-      .insert({ family_id: family.id, household_id: profile!.household_id });
+      .insert({ family_id: family.id, household_id: profile.household_id });
 
     setSaving(false);
+
+    if (memberError) {
+      setError(memberError.message);
+      return;
+    }
+
     router.refresh();
   }
 
@@ -73,15 +89,25 @@ export function FamilyManager({
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    if (!user) {
+      setSaving(false);
+      setError("Sua sessão expirou. Recarregue a página e faça login de novo.");
+      return;
+    }
     const { data: profile } = await supabase
       .from("profiles")
       .select("household_id")
-      .eq("id", user!.id)
+      .eq("id", user.id)
       .single();
+    if (!profile) {
+      setSaving(false);
+      setError("Não achamos seu perfil. Recarregue a página e tente de novo.");
+      return;
+    }
 
     const { error: joinError } = await supabase
       .from("family_members")
-      .insert({ family_id: family.id, household_id: profile!.household_id });
+      .insert({ family_id: family.id, household_id: profile.household_id });
 
     setSaving(false);
     if (joinError) setError(joinError.message);

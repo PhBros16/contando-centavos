@@ -46,16 +46,24 @@ export function PushNotificationToggle() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+      if (!user) {
+        setBusy(false);
+        return;
+      }
       const { data: profile } = await supabase
         .from("profiles")
         .select("household_id")
-        .eq("id", user!.id)
+        .eq("id", user.id)
         .single();
+      if (!profile) {
+        setBusy(false);
+        return;
+      }
 
       const json = subscription.toJSON();
       await supabase.from("push_subscriptions").upsert(
         {
-          household_id: profile!.household_id,
+          household_id: profile.household_id,
           endpoint: json.endpoint!,
           p256dh: json.keys!.p256dh,
           auth_key: json.keys!.auth,
