@@ -49,13 +49,23 @@ export default function NewGoalPage() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    if (!user) {
+      setError("Sua sessão expirou. Recarregue a página e faça login de novo.");
+      setSaving(false);
+      return;
+    }
     const { data: profile } = await supabase
       .from("profiles")
       .select("household_id")
-      .eq("id", user!.id)
+      .eq("id", user.id)
       .single();
+    if (!profile) {
+      setError("Não achamos seu perfil. Recarregue a página e tente de novo.");
+      setSaving(false);
+      return;
+    }
 
-    const householdId = profile!.household_id;
+    const householdId = profile.household_id;
     let photoUrl: string | null = null;
 
     if (photoFile) {

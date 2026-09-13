@@ -117,11 +117,17 @@ export default async function DashboardPage({
 
   const knownFutureAmount = (upcomingTransactions ?? []).reduce((s, t) => s + Number(t.amount), 0);
 
+  const historicalWindowDays = Math.max(
+    1,
+    (now.getTime() - new Date(chartWindowStartStr).getTime()) / 86_400_000
+  );
+
   const projectedBalance =
     projectBalance({
       currentBalance,
       recurringRules: (recurringRules ?? []) as RecurringRule[],
       historicalTransactions: (last6MonthsTransactions ?? []) as Transaction[],
+      historicalWindowDays,
       days: 30,
     }) + knownFutureAmount;
 
@@ -252,7 +258,11 @@ export default async function DashboardPage({
           </div>
 
           <div className="flex flex-col gap-10">
-            <BillsList bills={(bills ?? []) as Bill[]} />
+            <BillsList
+              bills={(bills ?? []) as Bill[]}
+              householdId={profile ? (profile as Profile).household_id : undefined}
+              defaultAccountId={accounts && accounts.length > 0 ? accounts[0].id : undefined}
+            />
             <BudgetList budgets={budgetsWithUsage} />
             <GoalList goals={(goals ?? []) as Goal[]} accountBalances={accountBalances} />
           </div>

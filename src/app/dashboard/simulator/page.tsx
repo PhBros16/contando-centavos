@@ -34,6 +34,7 @@ export default async function SimulatorPage() {
     currentBalance,
     recurringRules: (recurringRules ?? []) as RecurringRule[],
     historicalTransactions: (transactions ?? []) as Transaction[],
+    historicalWindowDays: Math.max(1, (Date.now() - new Date(sixMonthsAgoStr).getTime()) / 86_400_000),
     days: 30,
   });
 

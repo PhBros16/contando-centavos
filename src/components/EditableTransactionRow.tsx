@@ -153,50 +153,55 @@ export function EditableTransactionRow({
   const positive = transaction.amount > 0;
 
   return (
-    <div className="group flex items-center gap-3.5 py-3 border-b border-hairline last:border-none">
-      <div
-        className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs"
-        style={{ background: positive ? "rgb(var(--brand) / 0.1)" : "rgb(var(--wine) / 0.1)" }}
-      >
-        {transaction.category?.icon ?? (positive ? "＋" : "－")}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-semibold truncate flex items-center gap-1.5">
-          {transaction.description}
-          {transaction.installment_total && (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-hairline/15 text-ink-soft shrink-0">
-              {transaction.installment_number}/{transaction.installment_total}
-            </span>
-          )}
-          {transaction.split_count && transaction.split_count > 1 && (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-hairline/15 text-ink-soft shrink-0">
-              ÷{transaction.split_count}
-            </span>
-          )}
+    <div className="group flex flex-wrap items-center gap-x-3.5 gap-y-2 py-3 border-b border-hairline last:border-none">
+      <div className="flex items-center gap-3.5 flex-1 min-w-[160px]">
+        <div
+          className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs"
+          style={{ background: positive ? "rgb(var(--brand) / 0.1)" : "rgb(var(--wine) / 0.1)" }}
+        >
+          {transaction.category?.icon ?? (positive ? "＋" : "－")}
         </div>
-        <div className="text-xs text-ink-faint mt-0.5 truncate">
-          {transaction.category?.name ?? "Sem categoria"} · {formatDateLabel(transaction.occurred_at)}
-          {transaction.recurring_rule_id && " · ↻"}
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold truncate flex items-center gap-1.5">
+            {transaction.description}
+            {transaction.installment_total && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-hairline/15 text-ink-soft shrink-0">
+                {transaction.installment_number}/{transaction.installment_total}
+              </span>
+            )}
+            {transaction.split_count && transaction.split_count > 1 && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-hairline/15 text-ink-soft shrink-0">
+                ÷{transaction.split_count}
+              </span>
+            )}
+          </div>
+          <div className="text-xs text-ink-faint mt-0.5 truncate">
+            {transaction.category?.name ?? "Sem categoria"} · {formatDateLabel(transaction.occurred_at)}
+            {transaction.recurring_rule_id && " · ↻"}
+          </div>
         </div>
       </div>
-      <div
-        className="font-display text-[15px] font-medium shrink-0"
-        style={{ color: positive ? "rgb(var(--brand))" : "rgb(var(--ink))" }}
-      >
-        {positive ? "+" : "−"} {formatCurrency(Math.abs(transaction.amount))}
-      </div>
-      <ReceiptAttach
-        transactionId={transaction.id}
-        householdId={transaction.household_id}
-        receiptPath={transaction.receipt_path}
-      />
-      <div className="flex gap-2.5 shrink-0">
-        <button onClick={() => setEditing(true)} className="text-xs font-semibold text-brand hover:underline">
-          Editar
-        </button>
-        <button onClick={handleDeleteClick} className="text-xs font-semibold text-wine hover:underline">
-          Excluir
-        </button>
+
+      <div className="flex items-center gap-3.5 shrink-0 ml-11 sm:ml-0">
+        <div
+          className="font-display text-[15px] font-medium shrink-0"
+          style={{ color: positive ? "rgb(var(--brand))" : "rgb(var(--ink))" }}
+        >
+          {positive ? "+" : "−"} {formatCurrency(Math.abs(transaction.amount))}
+        </div>
+        <ReceiptAttach
+          transactionId={transaction.id}
+          householdId={transaction.household_id}
+          receiptPath={transaction.receipt_path}
+        />
+        <div className="flex gap-2.5 shrink-0">
+          <button onClick={() => setEditing(true)} className="text-xs font-semibold text-brand hover:underline">
+            Editar
+          </button>
+          <button onClick={handleDeleteClick} className="text-xs font-semibold text-wine hover:underline">
+            Excluir
+          </button>
+        </div>
       </div>
     </div>
   );

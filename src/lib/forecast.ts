@@ -14,15 +14,17 @@ export function projectBalance({
   currentBalance,
   recurringRules,
   historicalTransactions,
+  historicalWindowDays,
   days,
 }: {
   currentBalance: number;
   recurringRules: RecurringRule[];
   historicalTransactions: Transaction[];
+  historicalWindowDays: number;
   days: number;
 }): number {
   const recurringImpact = sumRecurringInPeriod(recurringRules, days);
-  const dailyAverage = averageDailyDiscretionarySpend(historicalTransactions);
+  const dailyAverage = averageDailyDiscretionarySpend(historicalTransactions, historicalWindowDays);
   const discretionaryImpact = dailyAverage * days;
 
   return currentBalance + recurringImpact + discretionaryImpact;
@@ -40,14 +42,20 @@ function sumRecurringInPeriod(rules: RecurringRule[], days: number): number {
     .reduce((total, rule) => total + rule.amount * occurrencesPerDay[rule.frequency] * days, 0);
 }
 
-function averageDailyDiscretionarySpend(transactions: Transaction[]): number {
+// Usa a janela de consulta (ex: os últimos N meses pedidos) como denominador,
+// não o intervalo entre a primeira e a última transação encontrada. Com
+// poucas transações (ou só uma, no mesmo dia) esse intervalo pode virar 1
+// dia, fazendo o total daquele dia ser extrapolado como se se repetisse
+// todo santo dia — gerando previsões absurdas com pouco histórico.
+function averageDailyDiscretionarySpend(transactions: Transaction[], windowDays: number): number {
   if (transactions.length === 0) return 0;
 
-  const dates = transactions.map((t) => new Date(t.occurred_at).getTime());
-  const spanDays = Math.max(1, (Math.max(...dates) - Math.min(...dates)) / 86_400_000);
-  const total = transactions.reduce((sum, t) => sum + t.amount, 0);
+  // Com menos de ~2 semanas de dados reais, a média ainda é pouco confiável
+  // pra extrapolar — melhor não arriscar um número exagerado.
+  if (windowDays < 14) return 0;
 
-  return total / spanDays;
+  const total = transactions.reduce((sum, t) => sum + t.amount, 0);
+  return total / windowDays;
 }
 
 /**

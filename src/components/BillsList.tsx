@@ -1,17 +1,65 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Bill } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
 
-export function BillsList({ bills }: { bills: Bill[] }) {
+export function BillsList({
+  bills,
+  householdId,
+  defaultAccountId,
+}: {
+  bills: Bill[];
+  householdId?: string;
+  defaultAccountId?: string;
+}) {
   const router = useRouter();
   const supabase = createClient();
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [errorId, setErrorId] = useState<string | null>(null);
 
-  async function markAsPaid(id: string) {
-    await supabase.from("bills").update({ status: "pago" }).eq("id", id);
+  async function markAsPaid(bill: Bill) {
+    setBusyId(bill.id);
+    setErrorId(null);
+
+    // Marcar como pago também lança a saída correspondente na conta —
+    // antes eram dois sistemas desconectados: o status mudava mas o
+    // dinheiro nunca saía de lugar nenhum, e o "atrasado" não sumia se a
+    // pessoa lançasse a transação por conta própria em vez de usar este
+    // botão.
+    if (householdId && defaultAccountId) {
+      const { data: transaction, error: txError } = await supabase
+        .from("transactions")
+        .insert({
+          household_id: householdId,
+          account_id: defaultAccountId,
+          category_id: bill.category_id,
+          description: `Pagamento: ${bill.description}`,
+          amount: -Math.abs(bill.amount),
+          occurred_at: new Date().toISOString().slice(0, 10),
+        })
+        .select()
+        .single();
+
+      if (txError || !transaction) {
+        setBusyId(null);
+        setErrorId(bill.id);
+        return;
+      }
+
+      await supabase
+        .from("bills")
+        .update({ status: "pago", transaction_id: transaction.id })
+        .eq("id", bill.id);
+    } else {
+      // Sem conta cadastrada ainda não dá pra lançar a saída — só atualiza o status.
+      await supabase.from("bills").update({ status: "pago" }).eq("id", bill.id);
+    }
+
+    setBusyId(null);
     router.refresh();
   }
 
@@ -50,6 +98,9 @@ export function BillsList({ bills }: { bills: Bill[] }) {
                     day: "2-digit",
                     month: "short",
                   })}
+                  {errorId === bill.id && (
+                    <span className="text-wine"> · não deu pra marcar, tenta de novo</span>
+                  )}
                 </div>
               </div>
               <span
@@ -63,10 +114,11 @@ export function BillsList({ bills }: { bills: Bill[] }) {
               </div>
               {!isPaid && (
                 <button
-                  onClick={() => markAsPaid(bill.id)}
-                  className="text-xs font-semibold text-brand hover:underline shrink-0"
+                  onClick={() => markAsPaid(bill)}
+                  disabled={busyId === bill.id}
+                  className="text-xs font-semibold text-brand hover:underline shrink-0 disabled:opacity-50"
                 >
-                  Marcar pago
+                  {busyId === bill.id ? "Marcando…" : "Marcar pago"}
                 </button>
               )}
             </div>

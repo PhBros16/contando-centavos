@@ -125,6 +125,7 @@ export type Bill = {
   due_date: string;
   status: "pendente" | "pago" | "atrasado";
   recurring: boolean;
+  transaction_id?: string | null;
   category?: Pick<Category, "name">;
 };
 

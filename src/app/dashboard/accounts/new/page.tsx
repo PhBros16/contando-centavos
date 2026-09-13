@@ -42,14 +42,24 @@ export default function NewAccountPage() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    if (!user) {
+      setError("Sua sessão expirou. Recarregue a página e faça login de novo.");
+      setSaving(false);
+      return;
+    }
     const { data: profile } = await supabase
       .from("profiles")
       .select("household_id")
-      .eq("id", user!.id)
+      .eq("id", user.id)
       .single();
+    if (!profile) {
+      setError("Não achamos seu perfil. Recarregue a página e tente de novo.");
+      setSaving(false);
+      return;
+    }
 
     const { error } = await supabase.from("accounts").insert({
-      household_id: profile!.household_id,
+      household_id: profile.household_id,
       name,
       type,
       institution: bank.id === "outro" ? null : bank.name,

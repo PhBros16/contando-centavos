@@ -44,11 +44,21 @@ export default function NewInstallmentPage() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    if (!user) {
+      setSaving(false);
+      alert("Sua sessão expirou. Recarregue a página e faça login de novo.");
+      return;
+    }
     const { data: profile } = await supabase
       .from("profiles")
       .select("household_id")
-      .eq("id", user!.id)
+      .eq("id", user.id)
       .single();
+    if (!profile) {
+      setSaving(false);
+      alert("Não achamos seu perfil. Recarregue a página e tente de novo.");
+      return;
+    }
 
     const groupId = crypto.randomUUID();
     const baseDate = new Date(firstDate + "T00:00:00");
@@ -60,7 +70,7 @@ export default function NewInstallmentPage() {
     const rows = Array.from({ length: n }, (_, i) => {
       const date = new Date(baseDate.getFullYear(), baseDate.getMonth() + i, baseDate.getDate());
       return {
-        household_id: profile!.household_id,
+        household_id: profile.household_id,
         account_id: accountId,
         category_id: categoryId || null,
         description,
@@ -72,9 +82,15 @@ export default function NewInstallmentPage() {
       };
     });
 
-    await supabase.from("transactions").insert(rows);
+    const { error } = await supabase.from("transactions").insert(rows);
 
     setSaving(false);
+
+    if (error) {
+      alert("Não deu pra lançar as parcelas: " + error.message);
+      return;
+    }
+
     router.push("/dashboard/transactions");
   }
 

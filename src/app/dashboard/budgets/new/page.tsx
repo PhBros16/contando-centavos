@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { requireProfile } from "@/lib/require-profile";
 import { Sidebar } from "@/components/Sidebar";
 import { BudgetForm } from "@/components/BudgetForm";
 import type { Category } from "@/lib/types";
@@ -9,17 +10,8 @@ export const dynamic = "force-dynamic";
 export default async function NewBudgetPage() {
   const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("household_id")
-    .eq("id", user!.id)
-    .single();
-
-  const householdId = profile!.household_id;
+  const { profile } = await requireProfile(supabase);
+  const householdId = profile.household_id;
   const monthRef = new Date().toISOString().slice(0, 8) + "01";
 
   const [{ data: categories }, { data: existingBudgets }] = await Promise.all([

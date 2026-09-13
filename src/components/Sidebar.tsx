@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -231,6 +231,30 @@ function MoreMenu({
   isActive: (item: (typeof NAV_ITEMS)[number]) => boolean;
   byLabel: Record<string, (typeof NAV_ITEMS)[number]>;
 }) {
+  const [dragY, setDragY] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const startY = useRef(0);
+
+  function handlePointerDown(e: React.PointerEvent) {
+    setDragging(true);
+    startY.current = e.clientY;
+  }
+
+  function handlePointerMove(e: React.PointerEvent) {
+    if (!dragging) return;
+    const delta = e.clientY - startY.current;
+    if (delta > 0) setDragY(delta);
+  }
+
+  function handlePointerUp() {
+    setDragging(false);
+    if (dragY > 90) {
+      onClose();
+    } else {
+      setDragY(0);
+    }
+  }
+
   return (
     <div className="md:hidden fixed inset-0 z-30 flex flex-col justify-end">
       <button
@@ -238,8 +262,21 @@ function MoreMenu({
         aria-label="Fechar"
         className="absolute inset-0 bg-ink/40"
       />
-      <div className="relative bg-paper rounded-t-2xl max-h-[80vh] overflow-y-auto pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4 px-5">
-        <div className="w-10 h-1 rounded-full bg-hairline/40 mx-auto mb-4" />
+      <div
+        className="relative bg-paper rounded-t-2xl max-h-[80vh] overflow-y-auto pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4 px-5"
+        style={{
+          transform: `translateY(${dragY}px)`,
+          transition: dragging ? "none" : "transform 0.2s ease-out",
+        }}
+      >
+        <div
+          className="w-10 h-1 rounded-full bg-hairline/40 mx-auto mb-4 cursor-grab touch-none"
+          style={{ padding: "10px 24px", margin: "-10px auto 4px" }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        />
         <div className="flex justify-between items-center mb-4">
           <span className="font-display text-lg">Todas as funções</span>
           <button onClick={onClose} className="text-sm text-ink-faint">

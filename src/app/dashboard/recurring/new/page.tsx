@@ -51,17 +51,27 @@ export default function NewRecurringPage() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
+    if (!user) {
+      setError("Sua sessão expirou. Recarregue a página e faça login de novo.");
+      setSaving(false);
+      return;
+    }
     const { data: profile } = await supabase
       .from("profiles")
       .select("household_id")
-      .eq("id", user!.id)
+      .eq("id", user.id)
       .single();
+    if (!profile) {
+      setError("Não achamos seu perfil. Recarregue a página e tente de novo.");
+      setSaving(false);
+      return;
+    }
 
     const numericAmount = parseFloat(amount.replace(",", "."));
     const signedAmount = kind === "receita" ? Math.abs(numericAmount) : -Math.abs(numericAmount);
 
     const { error } = await supabase.from("recurring_rules").insert({
-      household_id: profile!.household_id,
+      household_id: profile.household_id,
       account_id: accountId,
       description,
       amount: signedAmount,

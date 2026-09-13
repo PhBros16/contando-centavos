@@ -271,6 +271,7 @@ create table bills (
   due_date date not null,
   status text not null default 'pendente' check (status in ('pendente', 'pago', 'atrasado')),
   recurring boolean not null default false,
+  transaction_id uuid references transactions(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
