@@ -8,7 +8,7 @@ export function GoalList({ goals, accountBalances }: { goals: Goal[]; accountBal
     <div>
       <div className="flex justify-between items-baseline mb-4">
         <h3 className="text-[15.5px] font-bold">Metas</h3>
-        <Link href="/dashboard/goals/new" className="text-xs font-semibold text-brand hover:underline">
+        <Link href="/dashboard/goals/new" className="text-xs font-semibold text-brand hover:underline py-2 -my-2 px-0.5 -mx-0.5">
           Nova meta
         </Link>
       </div>
@@ -73,7 +73,7 @@ export function GoalList({ goals, accountBalances }: { goals: Goal[]; accountBal
                 </div>
                 <Link
                   href={`/dashboard/goals/${g.id}`}
-                  className="text-xs font-semibold text-brand hover:underline mt-2 inline-block"
+                  className="text-xs font-semibold text-brand hover:underline mt-2 inline-block py-1.5 -my-1.5 px-0.5 -mx-0.5"
                 >
                   {g.partnership_id ? "Ver parceria" : "Convidar alguém pra essa meta"}
                 </Link>

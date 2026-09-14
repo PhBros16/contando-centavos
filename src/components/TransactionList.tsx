@@ -7,7 +7,7 @@ export function TransactionList({ transactions }: { transactions: Transaction[] 
     <div>
       <div className="flex justify-between items-baseline mb-4">
         <h3 className="text-[15.5px] font-bold">Transações recentes</h3>
-        <Link href="/dashboard/transactions" className="text-xs font-semibold text-brand hover:underline">
+        <Link href="/dashboard/transactions" className="text-xs font-semibold text-brand hover:underline py-2 -my-2 px-0.5 -mx-0.5">
           Ver todas
         </Link>
       </div>

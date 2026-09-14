@@ -66,9 +66,9 @@ export function BillsList({
   const sorted = [...bills].sort((a, b) => a.due_date.localeCompare(b.due_date));
 
   return (
-    <div>
+    <div id="boletos-e-faturas">
       <div className="flex justify-between items-baseline mb-4">
-        <h3 className="text-[15.5px] font-bold">Contas a pagar</h3>
+        <h3 className="text-[15.5px] font-bold">Boletos e faturas</h3>
         <span className="text-xs text-ink-faint">{bills.filter((b) => b.status !== "pago").length} pendentes</span>
       </div>
       {sorted.length === 0 && (
@@ -116,7 +116,7 @@ export function BillsList({
                 <button
                   onClick={() => markAsPaid(bill)}
                   disabled={busyId === bill.id}
-                  className="text-xs font-semibold text-brand hover:underline shrink-0 disabled:opacity-50"
+                  className="text-xs font-semibold text-brand hover:underline shrink-0 disabled:opacity-50 py-2 -my-2 px-1 -mx-1"
                 >
                   {busyId === bill.id ? "Marcando…" : "Marcar pago"}
                 </button>

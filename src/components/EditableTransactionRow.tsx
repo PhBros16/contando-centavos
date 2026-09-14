@@ -199,10 +199,10 @@ export function EditableTransactionRow({
           receiptPath={transaction.receipt_path}
         />
         <div className="flex gap-2.5 shrink-0">
-          <button onClick={() => setEditing(true)} className="text-xs font-semibold text-brand hover:underline">
+          <button onClick={() => setEditing(true)} className="text-xs font-semibold text-brand hover:underline py-2 -my-2 px-0.5 -mx-0.5">
             Editar
           </button>
-          <button onClick={handleDeleteClick} className="text-xs font-semibold text-wine hover:underline">
+          <button onClick={handleDeleteClick} className="text-xs font-semibold text-wine hover:underline py-2 -my-2 px-0.5 -mx-0.5">
             Excluir
           </button>
         </div>

@@ -110,7 +110,7 @@ export function AccountCard({ account, balance }: { account: Account; balance: n
       {account.type === "cartao" && account.closing_day && (
         <Link
           href={`/dashboard/accounts/${account.id}/invoice`}
-          className="text-xs font-semibold text-brand hover:underline shrink-0"
+          className="text-xs font-semibold text-brand hover:underline shrink-0 py-2 -my-2 px-0.5 -mx-0.5"
         >
           Fatura
         </Link>
@@ -118,14 +118,14 @@ export function AccountCard({ account, balance }: { account: Account; balance: n
 
       <button
         onClick={() => setEditing(true)}
-        className="text-xs font-semibold text-brand hover:underline shrink-0"
+        className="text-xs font-semibold text-brand hover:underline shrink-0 py-2 -my-2 px-0.5 -mx-0.5"
       >
         Editar
       </button>
 
       <button
         onClick={handleArchive}
-        className="text-xs font-semibold text-ink-faint hover:text-wine shrink-0"
+        className="text-xs font-semibold text-ink-faint hover:text-wine shrink-0 py-2 -my-2 px-0.5 -mx-0.5"
       >
         Arquivar
       </button>

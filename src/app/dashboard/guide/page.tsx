@@ -5,7 +5,7 @@ import { GuideAccordion } from "@/components/GuideAccordion";
 const ESSENTIALS: { title: string; body: string }[] = [
   {
     title: "O que eu vejo quando abro o app?",
-    body: "O painel principal: quanto você tem, quanto entrou e saiu esse mês, seus gastos recentes, contas a pagar, orçamento e metas. Quem está começando vê um checklist guiando os primeiros passos.",
+    body: "O painel principal: quanto você tem, quanto entrou e saiu esse mês, seus gastos recentes, boletos e faturas, orçamento e metas. Quem está começando vê um checklist guiando os primeiros passos.",
   },
   {
     title: "Como registro onde meu dinheiro está guardado?",
@@ -29,7 +29,7 @@ const ESSENTIALS: { title: string; body: string }[] = [
   },
   {
     title: "Como não esqueço de pagar uma conta?",
-    body: "'Contas a pagar' é diferente de uma transação comum: aqui você cadastra algo com data de vencimento (fatura, boleto, assinatura) e marca como pago depois. Um aviso aparece no painel quando algo está vencendo.",
+    body: "'Boletos e faturas' é diferente de uma transação comum: aqui você cadastra algo com data de vencimento (fatura, boleto, assinatura) e marca como pago depois. Um aviso aparece no painel quando algo está vencendo.",
   },
   {
     title: "Como defino quanto posso gastar em cada coisa?",

@@ -7,7 +7,7 @@ export function BudgetList({ budgets }: { budgets: Budget[] }) {
     <div>
       <div className="flex justify-between items-baseline mb-4">
         <h3 className="text-[15.5px] font-bold">Orçamento do mês</h3>
-        <Link href="/dashboard/budgets/new" className="text-xs font-semibold text-brand hover:underline">
+        <Link href="/dashboard/budgets/new" className="text-xs font-semibold text-brand hover:underline py-2 -my-2 px-0.5 -mx-0.5">
           {budgets.length > 0 ? "Editar" : "Definir"}
         </Link>
       </div>

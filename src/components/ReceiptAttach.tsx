@@ -54,7 +54,7 @@ export function ReceiptAttach({
   if (receiptPath) {
     return (
       <div className="flex items-center gap-1.5">
-        <button onClick={handleView} className="text-xs font-semibold text-brand hover:underline">
+        <button onClick={handleView} className="text-xs font-semibold text-brand hover:underline py-2 -my-2 px-0.5 -mx-0.5">
           📎 Ver comprovante
         </button>
         <button onClick={handleRemove} className="text-xs text-ink-faint hover:text-wine">
