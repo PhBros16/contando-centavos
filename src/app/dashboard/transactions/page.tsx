@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
 import { EditableTransactionRow } from "@/components/EditableTransactionRow";
 import { QuickAddTransaction } from "@/components/QuickAddTransaction";
+import { TransactionsViewSwitch } from "@/components/TransactionsViewSwitch";
 import type { Account, Bill, Category, Profile, Transaction } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -55,11 +56,11 @@ export default async function TransactionsPage({
         </Link>
 
         <h1 className="font-display text-2xl font-medium mb-1">Transações</h1>
+
+        <TransactionsViewSwitch active="lista" />
+
         <div className="flex justify-between items-baseline mb-6">
-          <p className="text-sm text-ink-soft">
-            Busque, filtre, edite ou apague qualquer lançamento. (Quer ver por período, tipo um
-            extrato de banco? Veja "Extrato" no menu.)
-          </p>
+          <p className="text-sm text-ink-soft">Busque, filtre, edite ou apague qualquer lançamento.</p>
           <Link href="/dashboard/transactions/installment/new" className="text-sm font-semibold text-brand hover:underline">
             + Compra parcelada
           </Link>

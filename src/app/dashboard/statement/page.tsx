@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
+import { TransactionsViewSwitch } from "@/components/TransactionsViewSwitch";
 import {
   getPeriodRange,
   shiftAnchor,
@@ -70,10 +71,10 @@ export default async function StatementPage({
         </Link>
 
         <h1 className="font-display text-2xl font-medium mb-1">Extrato</h1>
-        <p className="text-sm text-ink-soft mb-6">
-          As mesmas transações organizadas por período. (Procurando algo específico? Veja
-          "Transações" no menu.)
-        </p>
+
+        <TransactionsViewSwitch active="periodo" />
+
+        <p className="text-sm text-ink-soft mb-6">As mesmas transações, organizadas por período em vez de lista.</p>
 
         <div className="flex rounded-lg overflow-hidden border border-hairline w-fit mb-5">
           {PERIOD_LABELS.map((p) => (

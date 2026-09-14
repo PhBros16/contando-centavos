@@ -23,11 +23,14 @@ const NAV_ITEMS = [
   { label: "Configurações", icon: "settings", href: "/dashboard/settings", real: true },
 ];
 
-// Os 4 que ficam sempre visíveis na barra do celular — o resto vai pro "Mais"
-const MOBILE_PRIMARY_LABELS = ["Visão geral", "Transações", "Extrato", "Contas"];
+// Os que ficam sempre visíveis na barra do celular — o resto vai pro "Mais".
+// Extrato saiu daqui porque agora é um alternador dentro de Transações, não
+// uma seção própria; e Boletos e faturas não tem uma tela de lista dedicada
+// (só o formulário de criar), então não faz sentido virar aba fixa ainda.
+const MOBILE_PRIMARY_LABELS = ["Visão geral", "Transações", "Contas"];
 
 const MOBILE_MORE_GROUPS: { title: string; labels: string[] }[] = [
-  { title: "Lançamentos", labels: ["Categorias", "Boletos e faturas"] },
+  { title: "Lançamentos", labels: ["Categorias", "Boletos e faturas", "Extrato"] },
   { title: "Planejamento", labels: ["Orçamento", "Metas", "Recorrências"] },
   { title: "Investimentos", labels: ["Investimentos"] },
   { title: "Ferramentas", labels: ["Importar", "Simulador", "Exportar", "Guia"] },
@@ -185,7 +188,7 @@ export function Sidebar({ activeLabel }: { activeLabel?: string }) {
         </nav>
       </aside>
 
-      {/* Mobile: 4 itens fixos + "Mais" — sem scroll horizontal na borda,
+      {/* Mobile: 3 itens fixos + "Mais" — sem scroll horizontal na borda,
           que no iPhone conflita com o gesto do sistema */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 flex border-t border-hairline bg-paper-raised px-1 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
         {primaryItems.map((item) => (

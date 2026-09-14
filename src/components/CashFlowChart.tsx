@@ -18,21 +18,21 @@ export function CashFlowChart({ data, months }: { data: MonthlyFlowPoint[]; mont
   return (
     <div>
       <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-baseline mb-4">
-        <h3 className="text-[15.5px] font-bold">Fluxo de caixa</h3>
-        <div className="flex items-center gap-2.5">
-          <span className="text-xs text-ink-faint hidden sm:inline">Receitas menos despesas</span>
-          <select
-            value={months}
-            onChange={(e) => router.push(`/dashboard?months=${e.target.value}`)}
-            className="text-xs rounded-lg border border-hairline bg-paper-raised px-2 py-1 outline-none focus:border-brand"
-          >
-            {PERIOD_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+        <div>
+          <h3 className="text-[15.5px] font-bold">Fluxo de caixa</h3>
+          <span className="text-xs text-ink-faint">Quanto entrou e saiu por mês</span>
         </div>
+        <select
+          value={months}
+          onChange={(e) => router.push(`/dashboard?months=${e.target.value}`)}
+          className="text-xs rounded-lg border border-hairline bg-paper-raised px-2 py-1 outline-none focus:border-brand"
+        >
+          {PERIOD_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="h-[190px] -ml-2">
         <ResponsiveContainer width="100%" height="100%">

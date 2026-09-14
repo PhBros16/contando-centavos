@@ -18,7 +18,7 @@ export function NetWorthBand({
       className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-ink-faint py-3 border-b border-hairline hover:text-ink-soft transition-colors"
     >
       <span>
-        Patrimônio líquido total:{" "}
+        Total (contas + investimentos):{" "}
         <strong className="font-display text-sm text-ink not-italic">{formatCurrency(netWorth)}</strong>
       </span>
       <span className="text-ink-faint/70">
