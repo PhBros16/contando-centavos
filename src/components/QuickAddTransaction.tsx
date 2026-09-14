@@ -7,6 +7,12 @@ import type { Category, Bill } from "@/lib/types";
 import { ReceiptAttach } from "@/components/ReceiptAttach";
 import { formatCurrency } from "@/lib/format";
 
+function parseSplitShare(amount: string, splitCount: string): number {
+  const total = parseFloat(amount.replace(",", ".")) || 0;
+  const people = Math.max(parseInt(splitCount) || 1, 1);
+  return total / people;
+}
+
 export function QuickAddTransaction({
   accountId,
   householdId,
@@ -210,24 +216,30 @@ export function QuickAddTransaction({
         <button
           type="button"
           onClick={() => setShowSplit((v) => !v)}
+          title="Divide o valor entre várias pessoas e lança só a sua parte"
           className={`text-xs font-semibold px-2.5 py-1.5 rounded-lg shrink-0 ${
             showSplit ? "bg-ink text-paper" : "text-ink-faint hover:text-ink"
           }`}
         >
-          ÷ Dividir
+          ÷ Dividir com alguém
         </button>
 
         {showSplit && (
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span className="text-xs text-ink-faint">entre</span>
-            <input
-              type="number"
-              min={2}
-              value={splitCount}
-              onChange={(e) => setSplitCount(e.target.value)}
-              className="w-14 rounded-lg border border-hairline bg-paper px-2 py-1.5 text-sm text-center outline-none focus:border-brand"
-            />
-            <span className="text-xs text-ink-faint">pessoas</span>
+          <div className="flex flex-col gap-1 shrink-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-ink-faint">Dividir entre</span>
+              <input
+                type="number"
+                min={2}
+                value={splitCount}
+                onChange={(e) => setSplitCount(e.target.value)}
+                className="w-14 rounded-lg border border-hairline bg-paper px-2 py-1.5 text-sm text-center outline-none focus:border-brand"
+              />
+              <span className="text-xs text-ink-faint">pessoas</span>
+            </div>
+            <span className="text-[11px] text-ink-faint">
+              Lançamos só a sua parte ({showSplit && amount ? formatCurrency(parseSplitShare(amount, splitCount)) : "o valor ÷ pessoas"})
+            </span>
           </div>
         )}
 

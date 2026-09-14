@@ -111,10 +111,12 @@ export default function NewRecurringPage() {
           Voltar
         </Link>
 
-        <h1 className="font-display text-2xl font-medium mb-1">Recorrências</h1>
+        <h1 className="font-display text-2xl font-medium mb-1">
+          Recorrências <span className="text-ink-faint font-normal text-lg">(o que se repete)</span>
+        </h1>
         <p className="text-sm text-ink-soft mb-8">
-          Salário, aluguel, assinaturas — o que se repete todo período. Isso alimenta a previsão
-          de saldo dos próximos 30 dias.
+          Salário, aluguel, assinaturas — cadastre uma vez e não precisa lançar de novo todo mês.
+          Isso também alimenta a previsão de saldo dos próximos 30 dias.
         </p>
 
         {accounts.length === 0 ? (
