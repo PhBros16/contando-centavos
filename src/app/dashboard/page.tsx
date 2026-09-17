@@ -161,11 +161,26 @@ export default async function DashboardPage({
     categoryFrequency[t.category_id] = (categoryFrequency[t.category_id] ?? 0) + 1;
   }
   const categoriesById = new Map(((allCategories ?? []) as Category[]).map((c) => [c.id, c]));
-  const topCategories = Object.entries(categoryFrequency)
+  const usedTopCategories = Object.entries(categoryFrequency)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6)
     .map(([id]) => categoriesById.get(id))
     .filter((c): c is Category => Boolean(c));
+
+  // Com pouco histórico (conta nova, ou só uma categoria usada até agora),
+  // completa até 6 sugestões com outras categorias existentes — senão a
+  // pessoa vê um chip solto e acha que está faltando alguma coisa.
+  const topCategories = [...usedTopCategories];
+  if (topCategories.length < 6) {
+    const usedIds = new Set(topCategories.map((c) => c.id));
+    for (const c of (allCategories ?? []) as Category[]) {
+      if (topCategories.length >= 6) break;
+      if (usedIds.has(c.id)) continue;
+      if (c.kind !== "despesa") continue;
+      topCategories.push(c);
+      usedIds.add(c.id);
+    }
+  }
 
   const categoryNames = Object.fromEntries(((allCategories ?? []) as Category[]).map((c) => [c.id, c.name]));
   const monthComparisonRows = compareMonthlySpend(last6MonthsTransactions ?? [], categoryNames, now);

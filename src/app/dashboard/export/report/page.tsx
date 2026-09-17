@@ -78,7 +78,7 @@ export default async function ReportPage({
               <path d="M4 18 L10 10 L14 14 L20 5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span className="font-display text-lg">Contando Centavos</span>
+          <span className="font-display text-lg">Meus Centavos</span>
         </div>
 
         <div className="mb-10">

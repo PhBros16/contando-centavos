@@ -13,7 +13,7 @@ const ESSENTIALS: { title: string; body: string }[] = [
   },
   {
     title: "Como organizo meus gastos por tipo?",
-    body: "Categorias. Já vêm 13 prontas (Alimentação, Transporte, Salário etc.), e você pode criar as suas com nome, emoji e cor.",
+    body: "Categorias. Já vêm 14 prontas (Alimentação, Transporte, Salário etc.), e você pode criar as suas com nome, emoji e cor.",
   },
   {
     title: "Como registro um gasto ou recebimento rapidinho?",
@@ -25,11 +25,11 @@ const ESSENTIALS: { title: string; body: string }[] = [
   },
   {
     title: "Como vejo meus gastos organizados por dia, semana, mês ou ano?",
-    body: "Em 'Extrato' — as mesmas transações de 'Transações', só que organizadas como um extrato de banco de verdade, com setas pra andar no tempo. Use 'Transações' quando quiser buscar algo específico; use 'Extrato' quando quiser ver o panorama de um período.",
+    body: "Dentro de 'Transações', toque em 'Por período' no topo da tela — mostra as mesmas transações organizadas como um extrato de banco de verdade, com setas pra andar no tempo. Use 'Lista' quando quiser buscar algo específico; use 'Por período' quando quiser ver o panorama de um mês inteiro.",
   },
   {
     title: "Como não esqueço de pagar uma conta?",
-    body: "'Boletos e faturas' é diferente de uma transação comum: aqui você cadastra algo com data de vencimento (fatura, boleto, assinatura) e marca como pago depois. Um aviso aparece no painel quando algo está vencendo.",
+    body: "'Boletos e faturas' é diferente de uma transação comum: aqui você cadastra algo com data de vencimento (fatura, boleto, assinatura) e marca como pago depois. Um aviso aparece no painel quando algo está vencendo — toque nele pra ir direto pra lá. Se você já tem um boleto pendente, o próprio formulário de lançar rápido mostra um botão \"isso é o pagamento de uma conta pendente?\" que já marca tudo certo de uma vez.",
   },
   {
     title: "Como defino quanto posso gastar em cada coisa?",
@@ -125,7 +125,7 @@ export default function GuidePage() {
         </Link>
 
         <div className="mb-10 pb-8 border-b border-hairline">
-          <h1 className="font-display text-2xl font-medium mb-3">O que é o Contando Centavos?</h1>
+          <h1 className="font-display text-2xl font-medium mb-3">O que é o app Meus Centavos?</h1>
           <p className="text-sm text-ink-soft leading-relaxed mb-3">
             É um jeito simples de acompanhar seu dinheiro: quanto entra, quanto sai, pra onde vai,
             e se vai sobrar alguma coisa no fim do mês. Você mesmo digita o que gasta e recebe —

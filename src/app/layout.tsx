@@ -16,7 +16,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Contando Centavos — Acompanhamento financeiro pessoal",
+  title: "Meus Centavos — Acompanhamento financeiro pessoal",
   description: "Contas, orçamento, metas e previsões, tudo em um só lugar.",
   manifest: "/manifest.json",
   icons: {
@@ -26,21 +26,21 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Centavos",
+    title: "Meus Centavos",
   },
   metadataBase: new URL("https://contando-centavos.vercel.app"),
   openGraph: {
-    title: "Contando Centavos",
+    title: "Meus Centavos",
     description: "Acompanhamento financeiro pessoal com orçamento, metas e previsões.",
     url: "https://contando-centavos.vercel.app",
-    siteName: "Contando Centavos",
+    siteName: "Meus Centavos",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     locale: "pt_BR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Contando Centavos",
+    title: "Meus Centavos",
     description: "Acompanhamento financeiro pessoal com orçamento, metas e previsões.",
     images: ["/og-image.png"],
   },

@@ -18,7 +18,7 @@ self.addEventListener("fetch", (event) => {
 // ---- Notificações push ----
 self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || "Contando Centavos";
+  const title = data.title || "Meus Centavos";
   const options = {
     body: data.body || "Você tem uma atualização financeira.",
     icon: "/icons/icon-192.png",

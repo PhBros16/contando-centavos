@@ -26,7 +26,7 @@ export function BackupExportClient() {
 
     const backup: Record<string, unknown> = {
       exported_at: new Date().toISOString(),
-      app: "Contando Centavos",
+      app: "Meus Centavos",
     };
     TABLES.forEach((table, i) => {
       backup[table] = results[i].data ?? [];

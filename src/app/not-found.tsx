@@ -10,7 +10,7 @@ export default function NotFound() {
               <path d="M4 18 L10 10 L14 14 L20 5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span className="font-display text-xl">Contando Centavos</span>
+          <span className="font-display text-xl">Meus Centavos</span>
         </div>
 
         <div className="font-display text-6xl mb-3" style={{ color: "var(--gold)" }}>

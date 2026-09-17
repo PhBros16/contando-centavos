@@ -49,7 +49,7 @@ export default async function JoinPartnershipPage({ params }: { params: { code: 
               <path d="M4 18 L10 10 L14 14 L20 5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span className="font-display text-xl">Contando Centavos</span>
+          <span className="font-display text-xl">Meus Centavos</span>
         </div>
 
         <h1 className="font-display text-2xl mb-1">Convite pra parceria</h1>

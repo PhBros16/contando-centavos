@@ -1,6 +1,6 @@
 {
-  "name": "Contando Centavos",
-  "short_name": "Centavos",
+  "name": "Meus Centavos",
+  "short_name": "Meus Centavos",
   "description": "Acompanhamento financeiro pessoal com orçamento, metas e previsões.",
   "start_url": "/dashboard",
   "scope": "/",

@@ -152,7 +152,7 @@ export default function LoginPage() {
                 <path d="M4 18 L10 10 L14 14 L20 5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <span className="font-display text-xl">Contando Centavos</span>
+            <span className="font-display text-xl">Meus Centavos</span>
           </div>
 
           <h1 className="font-display text-2xl mb-1">
@@ -198,14 +198,14 @@ export default function LoginPage() {
               <path d="M4 18 L10 10 L14 14 L20 5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span className="font-display text-xl">Contando Centavos</span>
+          <span className="font-display text-xl">Meus Centavos</span>
         </div>
 
         <h1 className="font-display text-2xl mb-1">
           {mode === "entrar" ? "Bem-vindo de volta" : "Comece sua jornada"}
         </h1>
         <p className="text-sm text-ink-soft mb-6">
-          {mode === "entrar" ? "Entre para ver suas finanças." : "Crie sua conta no Contando Centavos."}
+          {mode === "entrar" ? "Entre para ver suas finanças." : "Crie sua conta no app Meus Centavos."}
         </p>
 
         <div className="flex rounded-lg border border-hairline overflow-hidden mb-6">
