@@ -18,6 +18,7 @@ import { NetWorthBand } from "@/components/NetWorthBand";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { InstallAppBanner } from "@/components/InstallAppBanner";
 import { AdvancedSection } from "@/components/AdvancedSection";
+import { requireProfile } from "@/lib/require-profile";
 import { projectBalance, projectBudgetOverrun } from "@/lib/forecast";
 import { processDueRecurringRules } from "@/lib/processRecurring";
 import { compareMonthlySpend } from "@/lib/monthComparison";
@@ -44,9 +45,12 @@ export default async function DashboardPage({
 }) {
   const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Sem isso, uma sessão momentaneamente inválida (ex: o timeout de rede
+  // do middleware deixando passar sem confirmar o usuário) derrubava essa
+  // página com "Cannot read properties of null" ao usar user!.id mais
+  // abaixo — exatamente a mesma causa do antigo crash de "Definir
+  // orçamento", só que aqui na tela mais importante do app.
+  const { user, profile } = await requireProfile(supabase);
 
   // Antes de mostrar qualquer número, gera as transações de recorrências
   // que já venceram (salário, assinaturas etc.)
@@ -64,7 +68,6 @@ export default async function DashboardPage({
     .slice(0, 10);
 
   const [
-    { data: profile },
     { data: accounts },
     { data: recentTransactions },
     { data: last6MonthsTransactions },
@@ -78,7 +81,6 @@ export default async function DashboardPage({
     { data: allAccountTransactions },
     { data: investments },
   ] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", user!.id).single(),
     supabase.from("accounts").select("*").eq("archived", false),
     supabase
       .from("transactions")
